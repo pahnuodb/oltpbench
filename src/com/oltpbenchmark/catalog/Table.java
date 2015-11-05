@@ -36,14 +36,16 @@ public class Table extends AbstractCatalogObject {
     private final List<IntegrityConstraint> constraints = new ArrayList<IntegrityConstraint>();
     private final List<String> primaryKeys = new ArrayList<String>();
     private final List<Index> indexes = new ArrayList<Index>();
+    private final String schema;
     
     
-    public Table(String tableName) {
+    public Table(String tableName, final String schemaName) {
     	super(tableName);
+    	schema = schemaName.toUpperCase();
     }
     
     public Table(Table srcTable) {
-        this(srcTable.getName());
+        this(srcTable.getName(), srcTable.schema);
 
         for (int i = 0, cnt = srcTable.columns.size(); i < cnt; i++) {
             Column col = (Column)srcTable.columns.get(i).clone();
@@ -52,6 +54,35 @@ public class Table extends AbstractCatalogObject {
         for (IntegrityConstraint ic : srcTable.constraints) {
             this.constraints.add(ic.clone());
         } // FOR
+    }
+    
+    
+
+    /* (non-Javadoc)
+     * @see com.oltpbenchmark.catalog.AbstractCatalogObject#getName()
+     */
+    @Override
+    public String getName() {
+        return super.getName();
+    }
+    
+    public String getFullyQualifiedName() {
+        return schema != null ? schema + "." + super.getName() : super.getName();
+    }
+    
+    public String getEscapedFullyQualifiedName() {
+        String s = Catalog.getSeparator();
+        StringBuilder sb = new StringBuilder();
+        
+        sb.append(s);
+        
+        if (schema != null) {
+            sb.append(schema).append(s).append(".").append(s);
+        }
+        
+        sb.append(getName()).append(s);
+        
+        return sb.toString();
     }
 
     @Override

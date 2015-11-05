@@ -35,7 +35,7 @@ public abstract class AbstractCatalogObject implements Serializable {
 	 * Return the name of this catalog object in the database
 	 * @return
 	 */
-	public final String getName() {
+	public String getName() {
 		return (this.name);
 	}
 	

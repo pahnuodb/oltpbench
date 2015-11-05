@@ -24,13 +24,14 @@ import java.util.Map;
 
 import com.oltpbenchmark.api.Procedure;
 import com.oltpbenchmark.api.SQLStmt;
+import com.oltpbenchmark.benchmarks.ycsb.YCSBConstants;
 
 public class ReadModifyWriteRecord extends Procedure {
     public final SQLStmt selectStmt = new SQLStmt(
-        "Select * from USERTABLE where YCSB_KEY=? for update"
+        "Select * from " + YCSBConstants.YCSB_TABLENAME + " where YCSB_KEY=? for update"
     );
     public final SQLStmt updateAllStmt = new SQLStmt(
-        "UPDATE USERTABLE SET FIELD1=?,FIELD2=?,FIELD3=?,FIELD4=?,FIELD5=?," +
+        "UPDATE " + YCSBConstants.YCSB_TABLENAME + " SET FIELD1=?,FIELD2=?,FIELD3=?,FIELD4=?,FIELD5=?," +
         "FIELD6=?,FIELD7=?,FIELD8=?,FIELD9=?,FIELD10=? WHERE YCSB_KEY=?"
     );
 	//FIXME: The value in ysqb is a byteiterator

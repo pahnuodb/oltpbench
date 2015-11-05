@@ -19,12 +19,14 @@ package com.oltpbenchmark.benchmarks.ycsb.procedures;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+
 import com.oltpbenchmark.api.Procedure;
 import com.oltpbenchmark.api.SQLStmt;
+import com.oltpbenchmark.benchmarks.ycsb.YCSBConstants;
 
 public class DeleteRecord extends Procedure{
     public final SQLStmt deleteStmt = new SQLStmt(
-        "DELETE FROM USERTABLE where YCSB_KEY=?"
+        "DELETE FROM " + YCSBConstants.YCSB_TABLENAME + " where YCSB_KEY=?"
     );
     
 	//FIXME: The value in ysqb is a byteiterator

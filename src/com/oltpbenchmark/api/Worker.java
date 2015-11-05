@@ -235,8 +235,8 @@ work:
                         // This is the first time we have observed that the
                         // test is done notify the global test state, then
                         // continue applying load
-				seenDone = true;
-				wrkldState.signalDone();
+                        seenDone = true;
+                        wrkldState.signalDone();
                         break work;
                     }
 				break;
@@ -399,6 +399,8 @@ work:
                                        
                     //TODO: Handle acceptable error codes for every DBMS     
                     LOG.debug(next+ " " +  ex.getMessage()+" "+ex.getErrorCode()+ " - " +ex.getSQLState());
+                    System.err.println("ex = " + ex.getMessage());
+                    ex.printStackTrace(System.out);
 
                     this.txnErrors.put(next);
                     

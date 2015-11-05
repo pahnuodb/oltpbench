@@ -157,13 +157,14 @@ public class Phase {
         }
         else {
             int randomPercentage = gen.nextInt((int)totalWeight()) + 1;
-        double weight = 0.0;
-        for (int i = 0; i < this.num_weights; i++) {
-            weight += weights.get(i).doubleValue();
-            if (randomPercentage <= weight) {
-                return i + 1;
-            }
-        } // FOR
+            double weight = 0.0;
+
+            for (int i = 0; i < this.num_weights; i++) {
+                weight += weights.get(i).doubleValue();
+                if (randomPercentage <= weight) {
+                    return i + 1;
+                }
+            } // FOR
         }
 
         return -1;
@@ -172,7 +173,7 @@ public class Phase {
     /**
      * Returns a string for logging purposes when entering the phase
      * 
-     * @return Loggin String
+     * @return Logging String
      */
     public String currentPhaseString() {
         String retString ="[Starting Phase] [Workload= " + benchmarkName + "] ";

@@ -362,6 +362,7 @@ public class NewOrder extends TPCCProcedure {
 		} catch(UserAbortException userEx)
 		{
 		    LOG.debug("Caught an expected error in New Order");
+		    //userEx.printStackTrace(System.out);
 		    throw userEx;
 		}
 	    finally {

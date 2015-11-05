@@ -61,7 +61,7 @@ public class Index extends AbstractCatalogObject {
     }
     
     public String fullName() {
-        return String.format("%s.%s", this.catalog_tbl.getName(), this.name);
+        return String.format("%s.%s", this.catalog_tbl.getFullyQualifiedName(), this.name);
     }
     
     public void addColumn(String colName, SortDirectionType colOrder, int colPosition) {

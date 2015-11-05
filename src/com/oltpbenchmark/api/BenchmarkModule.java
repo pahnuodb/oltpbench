@@ -77,6 +77,10 @@ public abstract class BenchmarkModule {
      * A single Random object that should be re-used by all a benchmark's components
      */
     private final Random rng = new Random();
+    
+    private final String schemaName;
+    
+    public static final String DEFAULT_SCHEMA_NAME = null;
 
     /**
      * Whether to use verbose output messages
@@ -84,14 +88,22 @@ public abstract class BenchmarkModule {
      */
     protected boolean verbose;
 
-    public BenchmarkModule(String benchmarkName, WorkloadConfiguration workConf, boolean withCatalog) {
+    public BenchmarkModule(String benchmarkName, 
+            WorkloadConfiguration workConf, 
+            boolean withCatalog,
+            String schemaName) {
         assert (workConf != null) : "The WorkloadConfiguration instance is null.";
 
         this.benchmarkName = benchmarkName;
         this.workConf = workConf;
+        this.schemaName = schemaName;
         this.catalog = (withCatalog ? new Catalog(this) : null);
         File xmlFile = this.getSQLDialect();
         this.dialects = new StatementDialects(this.workConf.getDBType(), xmlFile);
+    }
+    
+    public String getSchemaName() {
+        return schemaName;
     }
 
     // --------------------------------------------------------------------------

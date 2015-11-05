@@ -102,6 +102,10 @@ public class TPCCLoader extends Loader{
 	private PreparedStatement getInsertStatement(String tableName) throws SQLException {
         Table catalog_tbl = this.getTableCatalog(tableName);
         assert(catalog_tbl != null);
+        
+        if (catalog_tbl == null) {
+            System.out.println("tablename = " + tableName);
+        }
 
 				//woonhak, if current dbType is postgres then make insertSQL without escaped character.
 				String sql = null;
@@ -110,9 +114,13 @@ public class TPCCLoader extends Loader{
 					sql = SQLUtil.getInsertSQL(catalog_tbl, false);
 				else
 					sql = SQLUtil.getInsertSQL(catalog_tbl);
-
-        PreparedStatement stmt = this.conn.prepareStatement(sql);
-        return stmt;
+		try{
+		    PreparedStatement stmt = this.conn.prepareStatement(sql);
+	        return stmt;
+		} catch (SQLException ex) {
+		    System.out.println("tableName = " + tableName + ", full name = " + catalog_tbl.getFullyQualifiedName() + " sql = " + sql);
+		    throw ex;
+		}
 	}
 
 	protected void transRollback() {

@@ -38,7 +38,7 @@ public class SEATSBenchmark extends BenchmarkModule {
     private final RandomGenerator rng = new RandomGenerator((int)System.currentTimeMillis());
     
 	public SEATSBenchmark(WorkloadConfiguration workConf) {
-		super("seats", workConf, true);
+		super("seats", workConf, true, BenchmarkModule.DEFAULT_SCHEMA_NAME);
 		this.registerSupplementalProcedure(LoadConfig.class);
 	}
 	

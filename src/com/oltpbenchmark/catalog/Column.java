@@ -61,7 +61,7 @@ public class Column extends AbstractCatalogObject implements Cloneable {
     }
     
     public String fullName() {
-        return String.format("%s.%s", this.catalog_tbl.getName(), this.name);
+        return String.format("%s.%s", this.catalog_tbl.getFullyQualifiedName(), this.name);
     }
     
     /**

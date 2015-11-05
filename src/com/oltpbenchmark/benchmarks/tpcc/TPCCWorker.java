@@ -25,7 +25,9 @@ package com.oltpbenchmark.benchmarks.tpcc;
  *
  */
 
+import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.Random;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -77,6 +79,19 @@ public class TPCCWorker extends Worker {
 		this.terminalOutputArea = terminalOutputArea;
 		this.errorOutputArea = errorOutputArea;
 		this.numWarehouses = numWarehouses;
+		
+		outputConnectionInfo();
+	}
+	
+	protected void outputConnectionInfo() throws SQLException {
+	    //@TODO: make this DB generic
+	    Statement stmt = conn.createStatement();
+	    ResultSet rs = stmt.executeQuery("SELECT getNodeId() FROM dual;");
+	    
+	    rs.next();
+	    long nodeId = rs.getLong(1);
+	    
+	    System.out.println("Terminal id: " + this.getId() + " warehouse id: " + terminalWarehouseID + " nuodb node id: " + nodeId);
 	}
 
 	/**

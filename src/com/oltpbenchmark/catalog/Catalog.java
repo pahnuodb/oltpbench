@@ -40,6 +40,7 @@ import org.apache.commons.io.IOUtils;
 import com.oltpbenchmark.api.BenchmarkModule;
 import com.oltpbenchmark.types.DatabaseType;
 import com.oltpbenchmark.types.SortDirectionType;
+import com.oltpbenchmark.util.DBName;
 import com.oltpbenchmark.util.Pair;
 import com.oltpbenchmark.util.SQLUtil;
 import com.oltpbenchmark.util.StringUtil;
@@ -75,9 +76,11 @@ public final class Catalog {
     private final Map<String, Table> tables = new HashMap<String, Table>();
     private final Map<String, String> origTableNames;
     private final Connection conn;
+    private final String schemaName;
     
     public Catalog(BenchmarkModule benchmark) {
         this.benchmark = benchmark;
+        this.schemaName = benchmark.getSchemaName();
         
         // Create an internal HSQLDB connection and pull out the 
         // catalog information that we're going to need
@@ -117,6 +120,10 @@ public final class Catalog {
     public Collection<Table> getTables() {
         return (this.tables.values());
     }
+    
+    public String getSchemaName() {
+        return schemaName;
+    }
     /**
      * Get the table by the given name. This is case insensitive
      */
@@ -154,7 +161,7 @@ public final class Catalog {
             
             String table_type = table_rs.getString(4);
             if (table_type.equalsIgnoreCase("TABLE") == false) continue;
-            Table catalog_tbl = new Table(table_name);
+            Table catalog_tbl = new Table(table_name, getSchemaName());
             
             // COLUMNS
             if (LOG.isDebugEnabled())
@@ -300,6 +307,8 @@ public final class Catalog {
         while (m.find()) {
             String tableName = m.group(1).trim();
             origTableNames.put(tableName.toUpperCase(), tableName);
+            System.out.println("adding mapping for table: " + DBName.getFullName(tableName.toUpperCase(), this, "."));
+            origTableNames.put(DBName.getFullName(tableName.toUpperCase(), this, "."), tableName);
 //            origTableNames.put(tableName, tableName);
         } // WHILE
         assert(origTableNames.isEmpty() == false) :

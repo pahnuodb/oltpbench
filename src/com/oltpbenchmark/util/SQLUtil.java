@@ -367,7 +367,7 @@ public abstract class SQLUtil {
     public static String getInsertSQL(Table catalog_tbl, boolean show_cols, boolean escape_names, int batchSize, int...exclude_columns) {
     	StringBuilder sb = new StringBuilder();
     	sb.append("INSERT INTO ")
-    	  .append(escape_names ? catalog_tbl.getEscapedName() : catalog_tbl.getName());
+    	  .append(escape_names ? catalog_tbl.getFullyQualifiedName() : catalog_tbl.getFullyQualifiedName());
     	
     	StringBuilder values = new StringBuilder();
     	boolean first;
@@ -408,7 +408,7 @@ public abstract class SQLUtil {
 
     public static String getMaxColSQL(Table catalog_tbl, String col) {
         return String.format("SELECT MAX(%s) FROM %s",
-                col, catalog_tbl.getEscapedName());
+                col, catalog_tbl.getEscapedFullyQualifiedName());
     }
 
     public static String selectColValues(Table catalog_tbl, String col) {

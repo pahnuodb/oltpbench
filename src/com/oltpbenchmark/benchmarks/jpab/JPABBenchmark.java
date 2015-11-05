@@ -42,7 +42,7 @@ public class JPABBenchmark extends BenchmarkModule {
     private JPABConfiguration jpabConf;
 
     public JPABBenchmark(WorkloadConfiguration workConf) {
-        super("jpab", workConf, false);
+        super("jpab", workConf, false, BenchmarkModule.DEFAULT_SCHEMA_NAME);
         this.jpabConf = new JPABConfiguration(workConf);
     }
 

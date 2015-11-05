@@ -26,10 +26,11 @@ import java.util.Map;
 
 import com.oltpbenchmark.api.Procedure;
 import com.oltpbenchmark.api.SQLStmt;
+import com.oltpbenchmark.benchmarks.ycsb.YCSBConstants;
 
 public class ScanRecord extends Procedure{
     public final SQLStmt scanStmt = new SQLStmt(
-        "SELECT * FROM USERTABLE WHERE YCSB_KEY>? AND YCSB_KEY<?"
+        "SELECT * FROM " + YCSBConstants.YCSB_TABLENAME + " WHERE YCSB_KEY>? AND YCSB_KEY<?"
     );
     
 	//FIXME: The value in ysqb is a byteiterator

@@ -55,7 +55,7 @@ public class WikipediaBenchmark extends BenchmarkModule {
 	
 	@SuppressWarnings("unchecked")
     public WikipediaBenchmark(WorkloadConfiguration workConf) {		
-		super("wikipedia", workConf, true);
+		super("wikipedia", workConf, true, BenchmarkModule.DEFAULT_SCHEMA_NAME);
 		
 		XMLConfiguration xml = workConf.getXmlConfig();
 		if (xml != null && xml.containsKey("tracefile")) {
