@@ -23,23 +23,27 @@ import java.util.HashSet;
 import java.util.Set;
 
 import com.oltpbenchmark.catalog.Table;
+import com.oltpbenchmark.util.DBName;
 import com.oltpbenchmark.util.Histogram;
 import com.oltpbenchmark.util.SQLUtil;
 
 public abstract class AbstractTestLoader<T extends BenchmarkModule> extends AbstractTestCase<T> {
     
-    protected Set<String> ignoreTables = new HashSet<String>();
+    protected Set<DBName> ignoreTables = new HashSet<DBName>();
     
     @SuppressWarnings("rawtypes")
-    protected void setUp(Class<T> clazz, String ignoreTables[], Class...procClasses) throws Exception {
+    protected void setUp(Class<T> clazz, DBName ignoreTables[], Class...procClasses) throws Exception {
         super.setUp(clazz, procClasses);
         
         if (ignoreTables != null) {
-            for (String t : ignoreTables) {
-                this.ignoreTables.add(t.toUpperCase());
+            for (DBName t : ignoreTables) {
+                this.ignoreTables.add(t);
             } // FOR
         }
         
+        //Statement schemaStmt = this.conn.createStatement();
+        //schemaStmt.execute("CREATE SCHEMA " + benchmark.getSchemaName());
+        //schemaStmt.close();
         this.workConf.setScaleFactor(.001);
         this.workConf.setTerminals(1);
         this.benchmark.createDatabase();
@@ -57,10 +61,17 @@ public abstract class AbstractTestLoader<T extends BenchmarkModule> extends Abst
         
         // All we really can do here is just invoke the loader 
         // and then check to make sure that our tables aren't empty
+        //this.conn.setSchema(this.benchmark.getSchemaName());
+        /*
+        Statement schemaStmt = this.conn.createStatement();
+        schemaStmt.execute("CREATE SCHEMA IF NOT EXISTS " + benchmark.getSchemaName());
+        schemaStmt.close();
+        */
+        
         this.benchmark.loadDatabase(this.conn);
         Histogram<String> tableSizes = new Histogram<String>();
-        for (String tableName : this.catalog.getTableNames()) {
-            if (this.ignoreTables.contains(tableName.toUpperCase())) continue;
+        for (DBName tableName : this.catalog.getTableNames()) {
+            if (this.ignoreTables.contains(tableName)) continue;
             Table catalog_tbl = this.catalog.getTable(tableName);
             
             sql = SQLUtil.getCountSQL(catalog_tbl);
@@ -70,7 +81,7 @@ public abstract class AbstractTestLoader<T extends BenchmarkModule> extends Abst
             assertTrue(sql, adv);
             int count = result.getInt(1);
             result.close();
-            tableSizes.put(tableName, count);            
+            tableSizes.put(tableName.getFullName(DBName.DEFAULT_DB_NAME_SEPARATOR), count);            
         } // FOR
         System.err.println(tableSizes);
         

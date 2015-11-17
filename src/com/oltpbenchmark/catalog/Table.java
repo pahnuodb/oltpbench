@@ -21,6 +21,10 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
+
+import com.oltpbenchmark.util.DBName;
 
 
 /**
@@ -36,16 +40,16 @@ public class Table extends AbstractCatalogObject {
     private final List<IntegrityConstraint> constraints = new ArrayList<IntegrityConstraint>();
     private final List<String> primaryKeys = new ArrayList<String>();
     private final List<Index> indexes = new ArrayList<Index>();
-    private final String schema;
+    private final Map<String, DBName> columnNames = new TreeMap<String, DBName>(String.CASE_INSENSITIVE_ORDER);
+    private final Map<String, DBName> indexNames = new TreeMap<String, DBName>(String.CASE_INSENSITIVE_ORDER);
     
     
-    public Table(String tableName, final String schemaName) {
+    public Table(DBName tableName) {
     	super(tableName);
-    	schema = schemaName.toUpperCase();
     }
     
     public Table(Table srcTable) {
-        this(srcTable.getName(), srcTable.schema);
+        this(srcTable.getName());
 
         for (int i = 0, cnt = srcTable.columns.size(); i < cnt; i++) {
             Column col = (Column)srcTable.columns.get(i).clone();
@@ -56,33 +60,12 @@ public class Table extends AbstractCatalogObject {
         } // FOR
     }
     
-    
-
-    /* (non-Javadoc)
-     * @see com.oltpbenchmark.catalog.AbstractCatalogObject#getName()
-     */
-    @Override
-    public String getName() {
-        return super.getName();
-    }
-    
     public String getFullyQualifiedName() {
-        return schema != null ? schema + "." + super.getName() : super.getName();
+        return getName().getFullName(DBName.DEFAULT_DB_NAME_SEPARATOR);
     }
     
     public String getEscapedFullyQualifiedName() {
-        String s = Catalog.getSeparator();
-        StringBuilder sb = new StringBuilder();
-        
-        sb.append(s);
-        
-        if (schema != null) {
-            sb.append(schema).append(s).append(".").append(s);
-        }
-        
-        sb.append(getName()).append(s);
-        
-        return sb.toString();
+        return getName().getEscapedFullName(DBName.DEFAULT_DB_NAME_SEPARATOR);
     }
 
     @Override
@@ -97,6 +80,8 @@ public class Table extends AbstractCatalogObject {
     public void addColumn(Column col) {
         assert(this.columns.contains(col) == false) : "Duplicate column '" + col + "'";
         this.columns.add(col);
+        DBName colName = col.getName();
+        columnNames.put(colName.getShortName(), colName);
     }
     
     public int getColumnCount() {
@@ -109,12 +94,13 @@ public class Table extends AbstractCatalogObject {
         return this.columns.get(index);
     }
     public String getColumnName(int index) {
-        return this.columns.get(index).getName();
+        return this.columns.get(index).getName().getShortName();
     }
     public int getColumnIndex(Column catalog_col) {
         return (this.getColumnIndex(catalog_col.getName()));
     }
-    public int getColumnIndex(String columnName) {
+    
+    public int getColumnIndex(DBName columnName) {
         for (int i = 0, cnt = getColumnCount(); i < cnt; i++) {
             if (this.columns.get(i).getName().equalsIgnoreCase(columnName)) {
                 return (i);
@@ -122,7 +108,7 @@ public class Table extends AbstractCatalogObject {
         } // FOR
         return -1;
     }
-    
+        
     public int[] getColumnTypes() {
         int types[] = new int[this.getColumnCount()];
         for (Column catalog_col : this.getColumns()) {
@@ -131,9 +117,14 @@ public class Table extends AbstractCatalogObject {
         return (types);
     }
 
-    public Column getColumnByName(String colname) {
+    public Column getColumnByName(DBName colname) {
         int idx = getColumnIndex(colname);
         return (idx >= 0 ? this.columns.get(idx) : null);
+    }
+    
+    public Column getColumnByName(String colname) {
+        DBName nm = columnNames.get(colname);
+        return getColumnByName(nm);
     }
 
     // ----------------------------------------------------------
@@ -147,6 +138,7 @@ public class Table extends AbstractCatalogObject {
     public void addIndex(Index index) {
         assert(this.indexes.contains(index) == false) : "Duplicate index '" + index + "'";
         this.indexes.add(index);
+        indexNames.put(index.getName().getShortName(), index.getName());
     }
     
     public Collection<Index> getIndexes() {
@@ -166,13 +158,17 @@ public class Table extends AbstractCatalogObject {
      * @param indexName
      * @return
      */
-    public Index getIndex(String indexName) {
+    public Index getIndex(DBName indexName) {
         for (Index catalog_idx : this.indexes) {
             if (catalog_idx.getName().equalsIgnoreCase(indexName)) {
                 return (catalog_idx); 
             }
         } // FOR
         return (null);
+    }
+    
+    public Index getIndexByName(String indexName) {
+        return getIndex(indexNames.get(indexName));
     }
     
     // ----------------------------------------------------------

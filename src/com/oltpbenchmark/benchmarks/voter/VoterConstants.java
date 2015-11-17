@@ -18,13 +18,16 @@
 
 package com.oltpbenchmark.benchmarks.voter;
 
+import com.oltpbenchmark.util.DBName;
+
 public abstract class VoterConstants {
 
 	public static final int MAX_VOTES = 1000; 
 	public static final int NUM_CONTESTANTS = 6; 
 	
-	public static final String TABLENAME_CONTESTANTS = "CONTESTANTS";
-	public static final String TABLENAME_LOCATIONS = "AREA_CODE_STATE";
+	public static final String SCHEMA_NAME = null;
+	public static final DBName TABLENAME_CONTESTANTS = new DBName(SCHEMA_NAME, "CONTESTANTS");
+	public static final DBName TABLENAME_LOCATIONS = new DBName(SCHEMA_NAME, "AREA_CODE_STATE");
 	
 	// Initialize some common constants and variables
     public static final String CONTESTANT_NAMES_CSV = "Edwina Burnam,Tabatha Gehling,Kelly Clauss,Jessie Alloway," +

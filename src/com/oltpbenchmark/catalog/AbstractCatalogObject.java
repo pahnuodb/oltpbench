@@ -18,6 +18,8 @@ package com.oltpbenchmark.catalog;
 
 import java.io.Serializable;
 
+import com.oltpbenchmark.util.DBName;
+
 /**
  * Base Catalog Object Class
  * @author pavlo
@@ -25,9 +27,9 @@ import java.io.Serializable;
 public abstract class AbstractCatalogObject implements Serializable {
 	static final long serialVersionUID = 0;
 	
-	protected final String name;
+	protected final DBName name;
 	
-	public AbstractCatalogObject(String name) {
+	public AbstractCatalogObject(DBName name) {
 		this.name = name;
 	}
 	
@@ -35,7 +37,7 @@ public abstract class AbstractCatalogObject implements Serializable {
 	 * Return the name of this catalog object in the database
 	 * @return
 	 */
-	public String getName() {
+	public DBName getName() {
 		return (this.name);
 	}
 	

@@ -40,7 +40,7 @@ public class EpinionsBenchmark extends BenchmarkModule {
     private static final Logger LOG = Logger.getLogger(EpinionsBenchmark.class);
 
     public EpinionsBenchmark(WorkloadConfiguration workConf) {
-        super("epinions", workConf, true, BenchmarkModule.DEFAULT_SCHEMA_NAME);
+        super("epinions", workConf, true, EpinionsConstants.SCHEMA_NAME);
     }
 
     @Override
@@ -58,7 +58,7 @@ public class EpinionsBenchmark extends BenchmarkModule {
             // LOADING FROM THE DATABASE IMPORTANT INFORMATION
             // LIST OF USERS
 
-            Table t = this.catalog.getTable("USER");
+            Table t = this.catalog.getTable(EpinionsConstants.USER_TABLE);
             assert (t != null) : "Invalid table name '" + t + "' " + this.catalog.getTables();
 
             String userCount = SQLUtil.selectColValues(t, "u_id");
@@ -71,7 +71,7 @@ public class EpinionsBenchmark extends BenchmarkModule {
             res.close();
             if(LOG.isDebugEnabled()) LOG.debug("Loaded: "+user_ids.size()+" User ids");
             // LIST OF ITEMS AND
-            t = this.catalog.getTable("ITEM");
+            t = this.catalog.getTable(EpinionsConstants.ITEM_TABLE);
             assert (t != null) : "Invalid table name '" + t + "' " + this.catalog.getTables();
             String itemCount = SQLUtil.selectColValues(t, "i_id");
             res = stmt.executeQuery(itemCount);

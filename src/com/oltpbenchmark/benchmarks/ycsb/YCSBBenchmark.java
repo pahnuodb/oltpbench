@@ -35,7 +35,7 @@ import com.oltpbenchmark.util.SQLUtil;
 public class YCSBBenchmark extends BenchmarkModule {
 
     public YCSBBenchmark(WorkloadConfiguration workConf) {
-        super("ycsb", workConf, true, "YCSB");
+        super("ycsb", workConf, true, YCSBConstants.SCHEMA_NAME);
     }
 
     @Override
@@ -47,7 +47,7 @@ public class YCSBBenchmark extends BenchmarkModule {
             // LOADING FROM THE DATABASE IMPORTANT INFORMATION
             // LIST OF USERS
 
-            Table t = this.catalog.getTable("USERTABLE");
+            Table t = this.catalog.getTable(YCSBConstants.YCSB_TABLENAME);
             assert (t != null) : "Invalid table name '" + t + "' " + this.catalog.getTables();
             String userCount = SQLUtil.getMaxColSQL(t, "ycsb_key");
             Statement stmt = metaConn.createStatement();

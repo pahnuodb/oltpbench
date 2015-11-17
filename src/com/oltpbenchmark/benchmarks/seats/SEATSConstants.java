@@ -19,6 +19,8 @@ package com.oltpbenchmark.benchmarks.seats;
 
 import java.util.regex.Pattern;
 
+import com.oltpbenchmark.util.DBName;
+
 public abstract class SEATSConstants {
     
     // ----------------------------------------------------------------
@@ -205,17 +207,18 @@ public abstract class SEATSConstants {
     /**
      * Table Names
      */
-    public static final String TABLENAME_COUNTRY = "COUNTRY";
-    public static final String TABLENAME_AIRLINE = "AIRLINE";
-    public static final String TABLENAME_CUSTOMER = "CUSTOMER";
-    public static final String TABLENAME_FREQUENT_FLYER = "FREQUENT_FLYER";
-    public static final String TABLENAME_AIRPORT = "AIRPORT";
-    public static final String TABLENAME_AIRPORT_DISTANCE = "AIRPORT_DISTANCE";
-    public static final String TABLENAME_FLIGHT = "FLIGHT";
-    public static final String TABLENAME_RESERVATION = "RESERVATION";
+    public static final String SCHEMA_NAME = null;
+    public static final DBName TABLENAME_COUNTRY = new DBName(SCHEMA_NAME, "COUNTRY");
+    public static final DBName TABLENAME_AIRLINE = new DBName(SCHEMA_NAME, "AIRLINE");
+    public static final DBName TABLENAME_CUSTOMER = new DBName(SCHEMA_NAME, "CUSTOMER");
+    public static final DBName TABLENAME_FREQUENT_FLYER = new DBName(SCHEMA_NAME, "FREQUENT_FLYER");
+    public static final DBName TABLENAME_AIRPORT = new DBName(SCHEMA_NAME, "AIRPORT");
+    public static final DBName TABLENAME_AIRPORT_DISTANCE = new DBName(SCHEMA_NAME, "AIRPORT_DISTANCE");
+    public static final DBName TABLENAME_FLIGHT = new DBName(SCHEMA_NAME, "FLIGHT");
+    public static final DBName TABLENAME_RESERVATION = new DBName(SCHEMA_NAME, "RESERVATION");
     
-    public static final String TABLENAME_CONFIG_PROFILE = "CONFIG_PROFILE";
-    public static final String TABLENAME_CONFIG_HISTOGRAMS = "CONFIG_HISTOGRAMS";
+    public static final DBName TABLENAME_CONFIG_PROFILE = new DBName(SCHEMA_NAME, "CONFIG_PROFILE");
+    public static final DBName TABLENAME_CONFIG_HISTOGRAMS = new DBName(SCHEMA_NAME, "CONFIG_HISTOGRAMS");
 
     /**
      * Histogram Data Set Names
@@ -224,7 +227,7 @@ public abstract class SEATSConstants {
     public static final String HISTOGRAM_FLIGHTS_PER_DEPART_TIMES = "flights_per_time";
     
     /** Tables that are loaded from data files */
-    public static final String TABLES_DATAFILES[] = {
+    public static final DBName[] TABLES_DATAFILES = {
         SEATSConstants.TABLENAME_COUNTRY,
         SEATSConstants.TABLENAME_AIRPORT,
         SEATSConstants.TABLENAME_AIRLINE,
@@ -234,7 +237,7 @@ public abstract class SEATSConstants {
      * Tables generated from random data
      * IMPORTANT: FLIGHT must come before FREQUENT_FLYER
      */
-    public static final String TABLES_SCALING[] = {
+    public static final DBName[] TABLES_SCALING = {
         SEATSConstants.TABLENAME_CUSTOMER,
         SEATSConstants.TABLENAME_AIRPORT_DISTANCE,
         SEATSConstants.TABLENAME_FLIGHT,
@@ -243,7 +246,7 @@ public abstract class SEATSConstants {
     };
     
     /** Configuration Tables */
-    public static final String TABLES_CONFIG[] = {
+    public static final DBName[] TABLES_CONFIG = {
         SEATSConstants.TABLENAME_CONFIG_PROFILE,
         SEATSConstants.TABLENAME_CONFIG_HISTOGRAMS,
     };
@@ -261,9 +264,18 @@ public abstract class SEATSConstants {
      * will use the unique code in the input data tables instead of the id. Thus, we need
      * to keep a table of how to map these codes to the ids when loading.
      */
-    public static final String CODE_TO_ID_COLUMNS[][] = {
-        {TABLENAME_COUNTRY, "CO_CODE_3",    "CO_ID"},
-        {TABLENAME_AIRPORT, "AP_CODE",      "AP_ID"},
-        {TABLENAME_AIRLINE, "AL_IATA_CODE", "AL_ID"},
+    public static final DBName TUPLE_CODE_3 = new DBName("CO_CODE_3");
+    public static final DBName TUPLE_COUNTRY_ID = new DBName("CO_ID");
+    
+    public static final DBName TUPLE_AIRPORT_CO_CODE = new DBName("AP_CODE");
+    public static final DBName TUPLE_AIRPORT_CO_ID   = new DBName("AP_ID");
+    
+    public static final DBName TUPLE_AIRLINE_CO_CODE = new DBName("AL_IATA_CODE");
+    public static final DBName TUPLE_AIRLINE_CO_ID   = new DBName("AL_ID");
+    
+    public static final DBName CODE_TO_ID_COLUMNS[][] = {
+        {TABLENAME_COUNTRY, TUPLE_CODE_3,    TUPLE_COUNTRY_ID},
+        {TABLENAME_AIRPORT, TUPLE_AIRPORT_CO_CODE,      TUPLE_AIRPORT_CO_ID},
+        {TABLENAME_AIRLINE, TUPLE_AIRLINE_CO_CODE, TUPLE_AIRLINE_CO_ID},
     };
 }

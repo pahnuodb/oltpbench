@@ -29,6 +29,7 @@ import com.oltpbenchmark.catalog.Catalog;
 import com.oltpbenchmark.catalog.Column;
 import com.oltpbenchmark.catalog.Table;
 import com.oltpbenchmark.types.DatabaseType;
+import com.oltpbenchmark.util.DBName;
 import com.oltpbenchmark.util.Histogram;
 import com.oltpbenchmark.util.SQLUtil;
 
@@ -55,8 +56,8 @@ public abstract class Loader {
         this.tableSizes.set(tableName, size);
     }
 
-    public void addToTableCount(String tableName, int delta) {
-        this.tableSizes.put(tableName, delta);
+    public void addToTableCount(DBName tableName, int delta) {
+        this.tableSizes.put(tableName.getShortName(), delta);
     }
 
     public Histogram<String> getTableCounts() {
@@ -90,8 +91,8 @@ public abstract class Loader {
      * @param tableName
      * @return
      */
-    public Table getTableCatalog(String tableName) {
-        Table catalog_tbl = this.benchmark.getCatalog().getTable(tableName.toUpperCase());
+    public Table getTableCatalog(DBName tableName) {
+        Table catalog_tbl = this.benchmark.getCatalog().getTable(tableName);
         assert (catalog_tbl != null) : "Invalid table name '" + tableName + "'";
         return (catalog_tbl);
     }

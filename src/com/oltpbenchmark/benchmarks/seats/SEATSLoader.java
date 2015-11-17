@@ -198,7 +198,7 @@ public class SEATSLoader extends Loader {
      * @param catalog_db
      */
     protected void loadFixedTables() {
-        for (String table_name : SEATSConstants.TABLES_DATAFILES) {
+        for (DBName table_name : SEATSConstants.TABLES_DATAFILES) {
             LOG.debug(String.format("Loading table '%s' from fixed file", table_name));
             try {    
                 Table catalog_tbl = this.getTableCatalog(table_name);
@@ -223,7 +223,7 @@ public class SEATSLoader extends Loader {
         // IMPORTANT: FLIGHT must come before FREQUENT_FLYER so that we 
         // can use the flights_per_airline histogram when selecting an airline to 
         // create a new FREQUENT_FLYER account for a CUSTOMER 
-        for (String table_name : SEATSConstants.TABLES_SCALING) {
+        for (DBName table_name : SEATSConstants.TABLES_SCALING) {
             try {
                 Table catalog_tbl = this.getTableCatalog(table_name);
                 assert(catalog_tbl != null);
@@ -252,12 +252,12 @@ public class SEATSLoader extends Loader {
         Map<Integer, Map<String, Long>> mapping_columns = new HashMap<Integer, Map<String, Long>>();
         for (int col_code_idx = 0, cnt = columns.size(); col_code_idx < cnt; col_code_idx++) {
             Column catalog_col = columns.get(col_code_idx);
-            String col_name = catalog_col.getName();
+            DBName col_name = catalog_col.getName();
             
             // Code Column -> Id Column Mapping
             // Check to see whether this table has columns that we need to map their
             // code values to tuple ids
-            String col_id_name = this.profile.code_columns.get(col_name); 
+            DBName col_id_name = this.profile.getCodeColumnName(col_name); 
             if (col_id_name != null) {
                 Column catalog_id_col = catalog_tbl.getColumnByName(col_id_name);
                 assert(catalog_id_col != null) : "The id column " + catalog_tbl.getName() + "." + col_id_name + " is missing"; 
@@ -269,9 +269,9 @@ public class SEATSLoader extends Loader {
             // If this columns references a foreign key that is used in the Code->Id mapping
             // that we generating above, then we need to know when we should change the 
             // column value from a code to the id stored in our lookup table
-            if (this.profile.fkey_value_xref.containsKey(col_name)) {
-                String col_fkey_name = this.profile.fkey_value_xref.get(col_name);
-                mapping_columns.put(col_code_idx, this.profile.code_id_xref.get(col_fkey_name));
+            if (this.profile.hasFKeyRef(col_name)) {
+                DBName col_fkey_name = this.profile.getFKeyRef(col_name);
+                mapping_columns.put(col_code_idx, this.profile.getCodeIdRef(col_fkey_name));
             }
         } // FOR
 
@@ -329,7 +329,7 @@ public class SEATSLoader extends Loader {
                         assert(to_column != null) : String.format("Invalid column %s.%s", catalog_tbl.getName(), code_2_id.get(col_code_idx));  
                         long id = (Long)tuple[code_2_id.get(col_code_idx)];
                         if (LOG.isTraceEnabled()) LOG.trace(String.format("Mapping %s '%s' -> %s '%d'", from_column.fullName(), code, to_column.fullName(), id));
-                        this.profile.code_id_xref.get(to_column.getName()).put(code, id);
+                        this.profile.getCodeIdRef(to_column.getName()).put(code, id);
                     }
                 } // FOR
                 
@@ -424,7 +424,7 @@ public class SEATSLoader extends Loader {
             
             // Figure out which columns are random integers and strings
             for (Column catalog_col : catalog_tbl.getColumns()) {
-                String col_name = catalog_col.getName();
+                String col_name = catalog_col.getName().getShortName();
                 int col_idx = catalog_col.getIndex();
                 if (col_name.contains("_SATTR")) {
                     this.rnd_string.add(col_idx);
@@ -471,7 +471,7 @@ public class SEATSLoader extends Loader {
      * @param catalog_tbl the target table that we need an iterable for
      */
     protected Iterable<Object[]> getScalingIterable(Table catalog_tbl) {
-        String name = catalog_tbl.getName().toUpperCase();
+        DBName name = catalog_tbl.getName();
         ScalingDataIterable it = null;
         double scaleFactor = workConf.getScaleFactor(); 
         long num_customers = Math.round(SEATSConstants.CUSTOMERS_COUNT * scaleFactor); 

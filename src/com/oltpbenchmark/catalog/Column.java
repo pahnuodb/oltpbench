@@ -17,6 +17,8 @@
 
 package com.oltpbenchmark.catalog;
 
+import com.oltpbenchmark.util.DBName;
+
 /**
  * Column Catalog Object
  * @author pavlo
@@ -35,7 +37,7 @@ public class Column extends AbstractCatalogObject implements Cloneable {
     private boolean signed = false;
     private Column foreignkey = null;
     
-    public Column(Table catalog_tbl, String name, int type, String typename, Integer size) {
+    public Column(Table catalog_tbl, DBName name, int type, String typename, Integer size) {
     	super(name);
         this.catalog_tbl = catalog_tbl;
         this.type = type;
@@ -158,7 +160,7 @@ public class Column extends AbstractCatalogObject implements Cloneable {
     
     @Override
     public String toString() {
-        return (this.getName());
+        return (this.getName().toString());
     }
     
 }

@@ -16,14 +16,17 @@
 
 package com.oltpbenchmark.benchmarks.tpcc;
 
+import com.oltpbenchmark.util.DBName;
+
 public abstract class TPCCConstants {
-    public static final String TABLENAME_DISTRICT = "TPCC.DISTRICT";
-    public static final String TABLENAME_WAREHOUSE = "TPCC.WAREHOUSE";
-    public static final String TABLENAME_ITEM = "TPCC.ITEM";
-    public static final String TABLENAME_STOCK = "TPCC.STOCK";
-    public static final String TABLENAME_CUSTOMER = "TPCC.CUSTOMER";
-    public static final String TABLENAME_HISTORY = "TPCC.HISTORY";
-    public static final String TABLENAME_OPENORDER = "TPCC.OORDER";
-    public static final String TABLENAME_ORDERLINE = "TPCC.ORDER_LINE";
-    public static final String TABLENAME_NEWORDER = "TPCC.NEW_ORDER";
+    public static final String SCHEMA_NAME = "TPCC";
+    public static final DBName TABLENAME_DISTRICT = new DBName(SCHEMA_NAME, "DISTRICT");
+    public static final DBName TABLENAME_WAREHOUSE = new DBName(SCHEMA_NAME, "WAREHOUSE");
+    public static final DBName TABLENAME_ITEM = new DBName(SCHEMA_NAME, "ITEM");
+    public static final DBName TABLENAME_STOCK = new DBName(SCHEMA_NAME, "STOCK");
+    public static final DBName TABLENAME_CUSTOMER = new DBName(SCHEMA_NAME, "CUSTOMER");
+    public static final DBName TABLENAME_HISTORY = new DBName(SCHEMA_NAME, "HISTORY");
+    public static final DBName TABLENAME_OPENORDER = new DBName(SCHEMA_NAME, "OORDER");
+    public static final DBName TABLENAME_ORDERLINE = new DBName(SCHEMA_NAME, "ORDER_LINE");
+    public static final DBName TABLENAME_NEWORDER = new DBName(SCHEMA_NAME, "NEW_ORDER");
 }

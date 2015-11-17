@@ -18,7 +18,9 @@ package com.oltpbenchmark.benchmarks.ycsb;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 
 import org.apache.log4j.Logger;
 
@@ -41,8 +43,17 @@ public class YCSBLoader extends Loader {
 
     @Override
     public void load() throws SQLException {
-        Table catalog_tbl = this.getTableCatalog("USERTABLE");
+        Table catalog_tbl = this.getTableCatalog(YCSBConstants.YCSB_TABLENAME);
         assert (catalog_tbl != null);
+        
+        Statement fooStmt = conn.createStatement();
+        ResultSet results = fooStmt.executeQuery("SELECT * FROM INFORMATION_SCHEMA.TABLES;");
+        StringBuilder sb = new StringBuilder();
+        while (results.next()) {
+            sb.append(results.getString(2)).append(".").append(results.getString(3)).append("\n");
+        }
+        System.out.println("existing tables = " + sb.toString());
+        
         
         String sql = SQLUtil.getInsertSQL(catalog_tbl);
         PreparedStatement stmt = this.conn.prepareStatement(sql);

@@ -25,6 +25,7 @@ import junit.framework.TestCase;
 import org.apache.commons.io.IOUtils;
 
 import com.oltpbenchmark.api.MockBenchmark;
+import com.oltpbenchmark.util.DBName;
 import com.oltpbenchmark.util.SQLUtil;
 
 public class TestCatalog extends TestCase {
@@ -53,13 +54,15 @@ public class TestCatalog extends TestCase {
     public void testGetOriginalTableNames() throws Exception {
         // Make sure that the key and values in this map are not
         // equal unless we ignore their case
-        Map<String, String> origTableNames = this.catalog.getOriginalTableNames();
+        Map<String, DBName> origTableNames = this.catalog.getOriginalTableNames();
         assertNotNull(origTableNames);
         assertFalse(origTableNames.isEmpty());
         
-        for (Entry<String, String> e : origTableNames.entrySet()) {
+        for (Entry<String, DBName> e : origTableNames.entrySet()) {
             assertFalse(e.toString(), e.getKey().equals(e.getValue()));
-            assertTrue(e.toString(), e.getKey().equalsIgnoreCase(e.getValue()));
+            assertTrue(e.toString(), 
+                       e.getKey().equalsIgnoreCase(e.getValue().getFullName(DBName.DEFAULT_DB_NAME_SEPARATOR)) ||
+                       e.getKey().equalsIgnoreCase(e.getValue().getShortName()));
         } // FOR
     }
     
@@ -84,7 +87,7 @@ public class TestCatalog extends TestCase {
         assertEquals(num_tables, this.catalog.getTableCount());
         
         // Make sure that Map names match the Table names
-        for (String table_name : this.catalog.getTableNames()) {
+        for (DBName table_name : this.catalog.getTableNames()) {
             Table catalog_tbl = this.catalog.getTable(table_name);
             assertNotNull(catalog_tbl);
             assertEquals(table_name, catalog_tbl.getName());
@@ -103,7 +106,7 @@ public class TestCatalog extends TestCase {
         for (Table catalog_tbl : this.catalog.getTables()) {
             List<String> pkeys = catalog_tbl.getPrimaryKeyColumns();
             assertNotNull(pkeys);
-            assertFalse(catalog_tbl.getName(), pkeys.isEmpty());
+            assertFalse(catalog_tbl.getName().getFullName(DBName.DEFAULT_DB_NAME_SEPARATOR), pkeys.isEmpty());
             
             if (pkeys.size() > 1) {
                 assertNull(multicol_table);
@@ -119,7 +122,7 @@ public class TestCatalog extends TestCase {
      */
     public void testForeignKeys() throws Exception {
         // The C table should have two foreign keys
-        Table catalog_tbl = this.catalog.getTable("C");
+        Table catalog_tbl = this.catalog.getTableByName("C");
         int found = 0;
         assert(catalog_tbl != null) : this.catalog.getTableNames();
         for (Column catalog_col : catalog_tbl.getColumns()) {
@@ -165,7 +168,7 @@ public class TestCatalog extends TestCase {
             assertNotNull(catalog_tbl);
             for (Column catalog_col : catalog_tbl.getColumns()) {
                 assertNotNull(catalog_col);
-                if (catalog_col.getName().contains("_IATTR")) {
+                if (catalog_col.getName().toString().contains("_IATTR")) {
                     boolean actual = SQLUtil.isIntegerType(catalog_col.getType());
                     assertTrue(catalog_col.fullName() + " -> " + catalog_col.getType(), actual);
                 }

@@ -24,12 +24,13 @@ import java.util.Set;
 import com.oltpbenchmark.api.AbstractTestLoader;
 import com.oltpbenchmark.api.Worker;
 import com.oltpbenchmark.benchmarks.auctionmark.util.ItemInfo;
+import com.oltpbenchmark.util.DBName;
 import com.oltpbenchmark.util.Histogram;
 import com.oltpbenchmark.util.RandomGenerator;
 
 public class TestAuctionMarkLoader extends AbstractTestLoader<AuctionMarkBenchmark> {
 
-    private static String IGNORE[] = {
+    private static DBName IGNORE[] = {
 //        AuctionMarkConstants.TABLENAME_CONFIG_PROFILE,
     };
     

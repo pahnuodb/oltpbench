@@ -16,6 +16,8 @@
 
 package com.oltpbenchmark.benchmarks.ycsb;
 
+import com.oltpbenchmark.util.DBName;
+
 public abstract class YCSBConstants {
 
     public static final int RECORD_COUNT = 1000;
@@ -26,5 +28,6 @@ public abstract class YCSBConstants {
 
     static final int MAX_SCAN=1000;
 
-    public static final String YCSB_TABLENAME = "YCSB.USERTABLE";
+    public static final String SCHEMA_NAME = "YCSB";
+    public static final DBName YCSB_TABLENAME = new DBName(SCHEMA_NAME, "USERTABLE");
 }

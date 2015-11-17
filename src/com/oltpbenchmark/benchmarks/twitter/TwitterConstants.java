@@ -16,13 +16,16 @@
 
 package com.oltpbenchmark.benchmarks.twitter;
 
+import com.oltpbenchmark.util.DBName;
+
 public abstract class TwitterConstants {
 
-    public static final String TABLENAME_USER           = "user_profiles";
-    public static final String TABLENAME_TWEETS         = "tweets";
-    public static final String TABLENAME_FOLLOWS        = "follows";
-    public static final String TABLENAME_FOLLOWERS      = "followers";
-    public static final String TABLENAME_ADDED_TWEETS   = "added_tweets";
+    public static final String SCHEMA_NAME = null;
+    public static final DBName TABLENAME_USER           = new DBName(SCHEMA_NAME, "user_profiles");
+    public static final DBName TABLENAME_TWEETS         = new DBName(SCHEMA_NAME, "tweets");
+    public static final DBName TABLENAME_FOLLOWS        = new DBName(SCHEMA_NAME, "follows");
+    public static final DBName TABLENAME_FOLLOWERS      = new DBName(SCHEMA_NAME, "followers");
+    public static final DBName TABLENAME_ADDED_TWEETS   = new DBName(SCHEMA_NAME, "added_tweets");
     
 	/**
 	 * Number of user baseline

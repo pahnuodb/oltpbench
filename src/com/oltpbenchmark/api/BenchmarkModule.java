@@ -246,11 +246,25 @@ public abstract class BenchmarkModule {
         try {
             URL ddl = this.getDatabaseDDL(dbType);
             assert(ddl != null) : "Failed to get DDL for " + this;
+            initializeDBNamespace(dbType, conn);
             ScriptRunner runner = new ScriptRunner(conn, true, true);
             if (LOG.isDebugEnabled()) LOG.debug("Executing script '" + ddl + "'");
             runner.runScript(ddl);
         } catch (Exception ex) {
             throw new RuntimeException(String.format("Unexpected error when trying to create the %s database", this.benchmarkName), ex);
+        }
+    }
+    
+    protected void initializeDBNamespace(DatabaseType dbType, Connection conn) throws SQLException {
+        //create schema and setup connection to use the schema
+        if (dbType == DatabaseType.HSQLDB) {
+            /*
+            Statement schemaStmt = conn.createStatement();
+            boolean success = schemaStmt.execute("CREATE SCHEMA " + getSchemaName() + " AUTHORIZATION DBA;");
+            success = schemaStmt.execute("SET SCHEMA " + getSchemaName());
+            conn.commit();
+            schemaStmt.close();
+            */
         }
     }
 

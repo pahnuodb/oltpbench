@@ -19,6 +19,7 @@ package com.oltpbenchmark.benchmarks.auctionmark;
 
 import java.util.*;
 
+import com.oltpbenchmark.util.DBName;
 import com.oltpbenchmark.util.StringUtil;
 
 public abstract class AuctionMarkConstants {
@@ -246,25 +247,26 @@ public abstract class AuctionMarkConstants {
     // ----------------------------------------------------------------
     // TABLE NAMES
     // ----------------------------------------------------------------
-    public static final String TABLENAME_CONFIG_PROFILE         = "CONFIG_PROFILE";
-    public static final String TABLENAME_REGION                 = "REGION";
-    public static final String TABLENAME_USERACCT               = "USERACCT";
-    public static final String TABLENAME_USERACCT_ATTRIBUTES    = "USERACCT_ATTRIBUTES";
-    public static final String TABLENAME_USERACCT_ITEM          = "USERACCT_ITEM";
-    public static final String TABLENAME_USERACCT_WATCH         = "USERACCT_WATCH";
-    public static final String TABLENAME_USERACCT_FEEDBACK      = "USERACCT_FEEDBACK";
-    public static final String TABLENAME_CATEGORY               = "CATEGORY";
-    public static final String TABLENAME_GLOBAL_ATTRIBUTE_GROUP = "GLOBAL_ATTRIBUTE_GROUP";
-    public static final String TABLENAME_GLOBAL_ATTRIBUTE_VALUE = "GLOBAL_ATTRIBUTE_VALUE";
-    public static final String TABLENAME_ITEM                   = "ITEM";
-    public static final String TABLENAME_ITEM_ATTRIBUTE         = "ITEM_ATTRIBUTE";
-    public static final String TABLENAME_ITEM_IMAGE             = "ITEM_IMAGE";
-    public static final String TABLENAME_ITEM_COMMENT           = "ITEM_COMMENT";
-    public static final String TABLENAME_ITEM_BID               = "ITEM_BID";
-    public static final String TABLENAME_ITEM_MAX_BID           = "ITEM_MAX_BID";
-    public static final String TABLENAME_ITEM_PURCHASE          = "ITEM_PURCHASE";
+    public static final String SCHEMA_NAME = null;
+    public static final DBName TABLENAME_CONFIG_PROFILE         = new DBName(SCHEMA_NAME, "CONFIG_PROFILE");
+    public static final DBName TABLENAME_REGION                 = new DBName(SCHEMA_NAME, "REGION");
+    public static final DBName TABLENAME_USERACCT               = new DBName(SCHEMA_NAME, "USERACCT");
+    public static final DBName TABLENAME_USERACCT_ATTRIBUTES    = new DBName(SCHEMA_NAME, "USERACCT_ATTRIBUTES");
+    public static final DBName TABLENAME_USERACCT_ITEM          = new DBName(SCHEMA_NAME, "USERACCT_ITEM");
+    public static final DBName TABLENAME_USERACCT_WATCH         = new DBName(SCHEMA_NAME, "USERACCT_WATCH");
+    public static final DBName TABLENAME_USERACCT_FEEDBACK      = new DBName(SCHEMA_NAME, "USERACCT_FEEDBACK");
+    public static final DBName TABLENAME_CATEGORY               = new DBName(SCHEMA_NAME, "CATEGORY");
+    public static final DBName TABLENAME_GLOBAL_ATTRIBUTE_GROUP = new DBName(SCHEMA_NAME, "GLOBAL_ATTRIBUTE_GROUP");
+    public static final DBName TABLENAME_GLOBAL_ATTRIBUTE_VALUE = new DBName(SCHEMA_NAME, "GLOBAL_ATTRIBUTE_VALUE");
+    public static final DBName TABLENAME_ITEM                   = new DBName(SCHEMA_NAME, "ITEM");
+    public static final DBName TABLENAME_ITEM_ATTRIBUTE         = new DBName(SCHEMA_NAME, "ITEM_ATTRIBUTE");
+    public static final DBName TABLENAME_ITEM_IMAGE             = new DBName(SCHEMA_NAME, "ITEM_IMAGE");
+    public static final DBName TABLENAME_ITEM_COMMENT           = new DBName(SCHEMA_NAME, "ITEM_COMMENT");
+    public static final DBName TABLENAME_ITEM_BID               = new DBName(SCHEMA_NAME, "ITEM_BID");
+    public static final DBName TABLENAME_ITEM_MAX_BID           = new DBName(SCHEMA_NAME, "ITEM_MAX_BID");
+    public static final DBName TABLENAME_ITEM_PURCHASE          = new DBName(SCHEMA_NAME, "ITEM_PURCHASE");
 
-    public static final String TABLENAMES[] = {
+    public static final DBName TABLENAMES[] = {
         AuctionMarkConstants.TABLENAME_REGION,
         AuctionMarkConstants.TABLENAME_CATEGORY,
         AuctionMarkConstants.TABLENAME_GLOBAL_ATTRIBUTE_GROUP,
@@ -289,14 +291,14 @@ public abstract class AuctionMarkConstants {
     
     // If a table exists in this set, then the number of tuples loaded into the table
     // should not be modified by the scale factor
-    public static final Collection<String> FIXED_TABLES = new HashSet<String>();
+    public static final Collection<DBName> FIXED_TABLES = new HashSet<DBName>();
     static {
         FIXED_TABLES.add(AuctionMarkConstants.TABLENAME_REGION);
         FIXED_TABLES.add(AuctionMarkConstants.TABLENAME_GLOBAL_ATTRIBUTE_GROUP);
         FIXED_TABLES.add(AuctionMarkConstants.TABLENAME_GLOBAL_ATTRIBUTE_VALUE);
     }
     
-    public static final Collection<String> DYNAMIC_TABLES = new HashSet<String>();
+    public static final Collection<DBName> DYNAMIC_TABLES = new HashSet<DBName>();
     static {
     	DYNAMIC_TABLES.add(AuctionMarkConstants.TABLENAME_USERACCT_ATTRIBUTES);
     	DYNAMIC_TABLES.add(AuctionMarkConstants.TABLENAME_ITEM_IMAGE);
@@ -311,7 +313,7 @@ public abstract class AuctionMarkConstants {
     }
 
     // These tables are loaded from static data files
-    public static final Collection<String> DATAFILE_TABLES = new HashSet<String>();
+    public static final Collection<DBName> DATAFILE_TABLES = new HashSet<DBName>();
     static {
     	DATAFILE_TABLES.add(AuctionMarkConstants.TABLENAME_CATEGORY);
     }

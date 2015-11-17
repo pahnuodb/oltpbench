@@ -16,6 +16,8 @@
 
 package com.oltpbenchmark.benchmarks.wikipedia;
 
+import com.oltpbenchmark.util.DBName;
+
 public abstract class WikipediaConstants {
 
     /**
@@ -64,18 +66,19 @@ public abstract class WikipediaConstants {
     /**
      * Table Names
      */
-	public static final String TABLENAME_IPBLOCKS          = "ipblocks";
-	public static final String TABLENAME_LOGGING           = "logging";
-	public static final String TABLENAME_PAGE              = "page";
-	public static final String TABLENAME_PAGE_BACKUP       = "page_backup";
-	public static final String TABLENAME_PAGE_RESTRICTIONS = "page_restrictions";
-	public static final String TABLENAME_RECENTCHANGES     = "recentchanges";
-	public static final String TABLENAME_REVISION          = "revision";
-	public static final String TABLENAME_TEXT              = "text";
-	public static final String TABLENAME_USER              = "useracct";
-	public static final String TABLENAME_USER_GROUPS       = "user_groups";
-	public static final String TABLENAME_VALUE_BACKUP      = "value_backup";
-	public static final String TABLENAME_WATCHLIST         = "watchlist";
+	public static final String SCHEMA_NAME = null;
+	public static final DBName TABLENAME_IPBLOCKS          = new DBName(SCHEMA_NAME, "ipblocks");
+	public static final DBName TABLENAME_LOGGING           = new DBName(SCHEMA_NAME, "logging");
+	public static final DBName TABLENAME_PAGE              = new DBName(SCHEMA_NAME, "page");
+	public static final DBName TABLENAME_PAGE_BACKUP       = new DBName(SCHEMA_NAME, "page_backup");
+	public static final DBName TABLENAME_PAGE_RESTRICTIONS = new DBName(SCHEMA_NAME, "page_restrictions");
+	public static final DBName TABLENAME_RECENTCHANGES     = new DBName(SCHEMA_NAME, "recentchanges");
+	public static final DBName TABLENAME_REVISION          = new DBName(SCHEMA_NAME, "revision");
+	public static final DBName TABLENAME_TEXT              = new DBName(SCHEMA_NAME, "text");
+	public static final DBName TABLENAME_USER              = new DBName(SCHEMA_NAME, "useracct");
+	public static final DBName TABLENAME_USER_GROUPS       = new DBName(SCHEMA_NAME, "user_groups");
+	public static final DBName TABLENAME_VALUE_BACKUP      = new DBName(SCHEMA_NAME, "value_backup");
+	public static final DBName TABLENAME_WATCHLIST         = new DBName(SCHEMA_NAME, "watchlist");
 	
 	public static final int BATCH_SIZE = 1000;
 

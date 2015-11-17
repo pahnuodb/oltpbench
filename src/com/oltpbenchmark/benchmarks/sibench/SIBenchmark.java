@@ -35,7 +35,7 @@ import com.oltpbenchmark.util.SQLUtil;
 public class SIBenchmark extends BenchmarkModule {
 
     public SIBenchmark(WorkloadConfiguration workConf) {
-        super("si", workConf, true, BenchmarkModule.DEFAULT_SCHEMA_NAME);
+        super("si", workConf, true, SIConstants.SCHEMA_NAME);
     }
 
     @Override
@@ -47,7 +47,7 @@ public class SIBenchmark extends BenchmarkModule {
             // LOADING FROM THE DATABASE IMPORTANT INFORMATION
             // LIST OF USERS
 
-            Table t = this.catalog.getTable("SITEST");
+            Table t = this.catalog.getTable(SIConstants.TEST_TABLE_NAME);
             assert (t != null) : "Invalid table name '" + t + "' " + this.catalog.getTables();
             String recordCount = SQLUtil.getMaxColSQL(t, "id");
             Statement stmt = metaConn.createStatement();

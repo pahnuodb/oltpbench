@@ -17,6 +17,8 @@
 
 package com.oltpbenchmark.benchmarks.tatp;
 
+import com.oltpbenchmark.util.DBName;
+
 public abstract class TATPConstants {
 
     public static final long DEFAULT_NUM_SUBSCRIBERS = 100000l; 
@@ -37,12 +39,13 @@ public abstract class TATPConstants {
     // ----------------------------------------------------------------
     // TABLE NAMES
     // ----------------------------------------------------------------
-    public static final String TABLENAME_SUBSCRIBER = "SUBSCRIBER";
-    public static final String TABLENAME_ACCESS_INFO = "ACCESS_INFO";
-    public static final String TABLENAME_SPECIAL_FACILITY = "SPECIAL_FACILITY";
-    public static final String TABLENAME_CALL_FORWARDING = "CALL_FORWARDING";
+    public static final String SCHEMA_NAME = null;
+    public static final DBName TABLENAME_SUBSCRIBER = new DBName(SCHEMA_NAME, "SUBSCRIBER");
+    public static final DBName TABLENAME_ACCESS_INFO = new DBName(SCHEMA_NAME, "ACCESS_INFO");
+    public static final DBName TABLENAME_SPECIAL_FACILITY = new DBName(SCHEMA_NAME, "SPECIAL_FACILITY");
+    public static final DBName TABLENAME_CALL_FORWARDING = new DBName(SCHEMA_NAME, "CALL_FORWARDING");
  
-    public static final String TABLENAMES[] = {
+    public static final DBName TABLENAMES[] = {
         TABLENAME_SUBSCRIBER,
         TABLENAME_ACCESS_INFO,
         TABLENAME_SPECIAL_FACILITY,

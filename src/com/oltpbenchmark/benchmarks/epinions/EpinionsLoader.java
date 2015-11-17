@@ -68,7 +68,7 @@ public class EpinionsLoader extends Loader {
      * @throws SQLException
      */
     private void loadUsers() throws SQLException {
-        Table catalog_tbl = this.getTableCatalog("user");
+        Table catalog_tbl = this.getTableCatalog(EpinionsConstants.USER_TABLE);
         assert (catalog_tbl != null);
         String sql = SQLUtil.getInsertSQL(catalog_tbl);
         PreparedStatement userInsert = this.conn.prepareStatement(sql);
@@ -107,7 +107,7 @@ public class EpinionsLoader extends Loader {
      * @throws SQLException
      */
     private void loadItems() throws SQLException {
-        Table catalog_tbl = this.getTableCatalog("item");
+        Table catalog_tbl = this.getTableCatalog(EpinionsConstants.ITEM_TABLE);
         assert (catalog_tbl != null);
         String sql = SQLUtil.getInsertSQL(catalog_tbl);
         PreparedStatement itemInsert = this.conn.prepareStatement(sql);
@@ -150,7 +150,7 @@ public class EpinionsLoader extends Loader {
      * @throws SQLException
      */
     private void loadReviews() throws SQLException {
-        Table catalog_tbl = this.getTableCatalog("review");
+        Table catalog_tbl = this.getTableCatalog(EpinionsConstants.REVIEW_TABLE);
         assert (catalog_tbl != null);
         String sql = SQLUtil.getInsertSQL(catalog_tbl);
         PreparedStatement reviewInsert = this.conn.prepareStatement(sql);
@@ -210,7 +210,7 @@ public class EpinionsLoader extends Loader {
      * @throws SQLException
      */
     public void loadTrust() throws SQLException {
-        Table catalog_tbl = this.getTableCatalog("trust");
+        Table catalog_tbl = this.getTableCatalog(EpinionsConstants.TRUST_TABLE);
         assert (catalog_tbl != null);
         String sql = SQLUtil.getInsertSQL(catalog_tbl);
         PreparedStatement trustInsert = this.conn.prepareStatement(sql);

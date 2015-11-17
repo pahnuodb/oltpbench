@@ -41,7 +41,7 @@ public class LinkBenchLoader extends Loader {
 
     @Override
     public void load() throws SQLException {
-        Table catalog_tbl = this.getTableCatalog("USERTABLE");
+        Table catalog_tbl = this.getTableCatalog(LinkBenchConstants.USER_TABLE);
         assert (catalog_tbl != null);
         
         String sql = SQLUtil.getInsertSQL(catalog_tbl);

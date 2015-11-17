@@ -45,7 +45,9 @@ import java.io.PrintWriter;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.sql.Timestamp;
 import java.util.Random;
 
@@ -63,6 +65,7 @@ import com.oltpbenchmark.benchmarks.tpcc.pojo.OrderLine;
 import com.oltpbenchmark.benchmarks.tpcc.pojo.Stock;
 import com.oltpbenchmark.benchmarks.tpcc.pojo.Warehouse;
 import com.oltpbenchmark.catalog.Table;
+import com.oltpbenchmark.util.DBName;
 import com.oltpbenchmark.util.SQLUtil;
 
 //woonhak, for postgres (make insert statement wihtout escaped char), 
@@ -99,7 +102,7 @@ public class TPCCLoader extends Loader{
 
 	private static final int FIRST_UNPROCESSED_O_ID = 2101;
 	
-	private PreparedStatement getInsertStatement(String tableName) throws SQLException {
+	private PreparedStatement getInsertStatement(DBName tableName) throws SQLException {
         Table catalog_tbl = this.getTableCatalog(tableName);
         assert(catalog_tbl != null);
         
@@ -148,11 +151,11 @@ public class TPCCLoader extends Loader{
 		}
 	}
 
-	protected void truncateTable(String strTable) {
+	protected void truncateTable(DBName tableName) {
 
-		LOG.debug("Truncating '" + strTable + "' ...");
+		LOG.debug("Truncating '" + tableName + "' ...");
 		try {
-            this.conn.createStatement().execute("DELETE FROM " + strTable);
+            this.conn.createStatement().execute("DELETE FROM " + tableName);
 			transCommit();
 		} catch (SQLException se) {
 			LOG.debug(se.getMessage());
@@ -186,6 +189,7 @@ public class TPCCLoader extends Loader{
 			}
 
 			Item item = new Item();
+			int outstandingBatches = 0;
 
 			for (int i = 1; i <= itemKount; i++) {
 
@@ -220,6 +224,7 @@ public class TPCCLoader extends Loader{
 					itemPrepStmt.setString(4, item.i_data);
 					itemPrepStmt.setLong(5, item.i_im_id);
 					itemPrepStmt.addBatch();
+					outstandingBatches++;
 
 					if ((k % configCommitCount) == 0) {
 						long tmpTime = new java.util.Date().getTime();
@@ -231,6 +236,7 @@ public class TPCCLoader extends Loader{
 						lastTimeMS = tmpTime;
 						itemPrepStmt.executeBatch();
 						itemPrepStmt.clearBatch();
+						outstandingBatches = 0;
 						transCommit();
 					}
 				} else {
@@ -263,7 +269,8 @@ public class TPCCLoader extends Loader{
 					+ " of " + t);
 			lastTimeMS = tmpTime;
 
-			if (outputFiles == false) {
+			if ((outputFiles == false) && (outstandingBatches > 0)) {
+			    //need to deal with hsqldb and others who don't honor the JDBC executeBatch contract and throw exceptions if the batch is empty
 				itemPrepStmt.executeBatch();
 			}
 

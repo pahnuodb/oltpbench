@@ -38,7 +38,7 @@ public class SEATSBenchmark extends BenchmarkModule {
     private final RandomGenerator rng = new RandomGenerator((int)System.currentTimeMillis());
     
 	public SEATSBenchmark(WorkloadConfiguration workConf) {
-		super("seats", workConf, true, BenchmarkModule.DEFAULT_SCHEMA_NAME);
+		super("seats", workConf, true, SEATSConstants.SCHEMA_NAME);
 		this.registerSupplementalProcedure(LoadConfig.class);
 	}
 	
@@ -82,7 +82,7 @@ public class SEATSBenchmark extends BenchmarkModule {
 	public static final File getTableDataFile(File data_dir, Table catalog_tbl) {
 	    File f = new File(String.format("%s%stable.%s.csv", data_dir.getAbsolutePath(),
 	                                                        File.separator,
-	                                                        catalog_tbl.getName().toLowerCase()));
+	                                                        catalog_tbl.getName().getShortName().toLowerCase()));
 	    if (f.exists() == false) f = new File(f.getAbsolutePath() + ".gz");
 	    return (f);
 	}

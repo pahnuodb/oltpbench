@@ -16,6 +16,8 @@
 
 package com.oltpbenchmark.benchmarks.linkbench;
 
+import com.oltpbenchmark.util.DBName;
+
 public abstract class LinkBenchConstants {
 
     public static final long MAX_NODE_DATA = 1024 * 1024;
@@ -40,10 +42,12 @@ public abstract class LinkBenchConstants {
     public static final String NODESTORE_CLASS = "nodestore";
 
     /* Schema and tables used */
-    public static final String DBID = "dbid";
-    public static final String LINK_TABLE = "linktable";
-    public static final String COUNT_TABLE = "counttable";
-    public static final String NODE_TABLE = "nodetable";
+    public static final String SCHEMA_NAME = null;
+    public static final DBName DBID = new DBName(SCHEMA_NAME, "dbid");
+    public static final DBName LINK_TABLE = new DBName(SCHEMA_NAME, "linktable");
+    public static final DBName COUNT_TABLE = new DBName(SCHEMA_NAME, "counttable");
+    public static final DBName NODE_TABLE = new DBName(SCHEMA_NAME, "nodetable");
+    public static final DBName USER_TABLE = new DBName(SCHEMA_NAME, "USERTABLE");
 
     /* Control graph structure */
     public static final String LOAD_RANDOM_SEED = "load_random_seed";

@@ -34,13 +34,15 @@ public class TestTableDataIterable extends AbstractTestCase<SEATSBenchmark> {
     
     Table catalog_tbl;
     
+    public static final DBName AIRLINE_TABLE = new DBName("AIRLINE");
+    
     @Override
     protected void setUp() throws Exception {
         super.setUp(SEATSBenchmark.class);
         
         Catalog catalog = new Catalog(this.benchmark);
         assertNotNull(catalog);
-        this.catalog_tbl = catalog.getTable("AIRLINE");
+        this.catalog_tbl = catalog.getTable(AIRLINE_TABLE);
         assertNotNull(catalog.toString(), this.catalog_tbl);
         assertFalse(this.catalog_tbl.getColumnCount() == 0);
     }

@@ -67,12 +67,12 @@ public class AuctionMarkLoader extends Loader {
      * Data Generator Classes
      * TableName -> AbstactTableGenerator
      */
-    private final Map<String, AbstractTableGenerator> generators = Collections.synchronizedMap(new ListOrderedMap<String, AbstractTableGenerator>());
+    private final Map<DBName, AbstractTableGenerator> generators = Collections.synchronizedMap(new ListOrderedMap<DBName, AbstractTableGenerator>());
     
-    private final Collection<String> sub_generators = new HashSet<String>();
+    private final Collection<DBName> sub_generators = new HashSet<DBName>();
 
     /** The set of tables that we have finished loading **/
-    private final transient Collection<String> finished = Collections.synchronizedCollection(new HashSet<String>());
+    private final transient Collection<DBName> finished = Collections.synchronizedCollection(new HashSet<DBName>());
     
     private final Histogram<String> tableSizes = new Histogram<String>();
 
@@ -139,7 +139,7 @@ public class AuctionMarkLoader extends Loader {
         for (AbstractTableGenerator generator : this.generators.values()) {
             // if (isSubGenerator(generator)) continue;
             Thread t = new Thread(generator);
-            t.setName(generator.getTableName());
+            t.setName(generator.getTableName().getShortName());
             t.setUncaughtExceptionHandler(handler);
             
             // Call init() before we start!
@@ -196,7 +196,7 @@ public class AuctionMarkLoader extends Loader {
         } // FOR
     }
     
-    protected AbstractTableGenerator getGenerator(String table_name) {
+    protected AbstractTableGenerator getGenerator(DBName table_name) {
         return (this.generators.get(table_name));
     }
 
@@ -204,7 +204,7 @@ public class AuctionMarkLoader extends Loader {
      * Load the tuples for the given table name
      * @param tableName
      */
-    protected void generateTableData(String tableName) throws SQLException {
+    protected void generateTableData(DBName tableName) throws SQLException {
         LOG.info("*** START " + tableName);
         final AbstractTableGenerator generator = this.generators.get(tableName);
         assert (generator != null);
@@ -250,7 +250,7 @@ public class AuctionMarkLoader extends Loader {
                 // SKIP
             }
             
-            this.tableSizes.put(tableName, volt_table.size());
+            this.tableSizes.put(tableName.getShortName(), volt_table.size());
             
             // Release anything to the sub-generators if we have it
             // We have to do this to ensure that all of the parent tuples get
@@ -265,7 +265,7 @@ public class AuctionMarkLoader extends Loader {
             synchronized (this) {
                 this.finished.add(tableName);
                 LOG.info(String.format("*** FINISH %s - %d tuples - [%d / %d]",
-                                       tableName, this.tableSizes.get(tableName),
+                                       tableName, this.tableSizes.get(tableName.getShortName()),
                                        this.finished.size(), this.generators.size()));
                 if (LOG.isDebugEnabled()) {
                     LOG.debug("Remaining Tables: " + CollectionUtils.subtract(this.generators.keySet(), this.finished));
@@ -278,13 +278,13 @@ public class AuctionMarkLoader extends Loader {
      * AbstractTableGenerator
      **********************************************************************************************/
     protected abstract class AbstractTableGenerator implements Runnable {
-        private final String tableName;
+        private final DBName tableName;
         private final Table catalog_tbl;
         protected final List<Object[]> table = new ArrayList<Object[]>();
         protected Long tableSize;
         protected Long batchSize;
         protected final CountDownLatch latch = new CountDownLatch(1);
-        protected final List<String> dependencyTables = new ArrayList<String>();
+        protected final List<DBName> dependencyTables = new ArrayList<DBName>();
 
         /**
          * Some generators have children tables that we want to load tuples for each batch of this generator. 
@@ -308,7 +308,7 @@ public class AuctionMarkLoader extends Loader {
          * Constructor
          * @param catalog_tbl
          */
-        public AbstractTableGenerator(String tableName, String...dependencies) {
+        public AbstractTableGenerator(DBName tableName, DBName...dependencies) {
             this.tableName = tableName;
             this.catalog_tbl = benchmark.getCatalog().getTable(tableName);
             assert(catalog_tbl != null) : "Invalid table name '" + tableName + "'";
@@ -348,12 +348,12 @@ public class AuctionMarkLoader extends Loader {
             } 
             
             for (Column catalog_col : this.catalog_tbl.getColumns()) {
-                if (random_str_regex.matcher(catalog_col.getName()).matches()) {
+                if (random_str_regex.matcher(catalog_col.getName().getShortName()).matches()) {
                     assert(SQLUtil.isStringType(catalog_col.getType())) : catalog_col.fullName();
                     this.random_str_cols.add(catalog_col);
                     if (LOG.isTraceEnabled()) LOG.trace("Random String Column: " + catalog_col.fullName());
                 }
-                else if (random_int_regex.matcher(catalog_col.getName()).matches()) {
+                else if (random_int_regex.matcher(catalog_col.getName().getShortName()).matches()) {
                     assert(SQLUtil.isIntegerType(catalog_col.getType())) : catalog_col.fullName();
                     this.random_int_cols.add(catalog_col);
                     if (LOG.isTraceEnabled()) LOG.trace("Random Integer Column: " + catalog_col.fullName());
@@ -386,7 +386,7 @@ public class AuctionMarkLoader extends Loader {
             if (this.dependencyTables.size() > 0 && LOG.isDebugEnabled())
                 LOG.debug(String.format("%s: Table generator is blocked waiting for %d other tables: %s",
                                         this.tableName, this.dependencyTables.size(), this.dependencyTables));
-            for (String dependency : this.dependencyTables) {
+            for (DBName dependency : this.dependencyTables) {
                 AbstractTableGenerator gen = AuctionMarkLoader.this.generators.get(dependency);
                 assert(gen != null) : "Missing table generator for '" + dependency + "'";
                 try {
@@ -437,8 +437,8 @@ public class AuctionMarkLoader extends Loader {
         public Collection<SubTableGenerator<?>> getSubTableGenerators() {
             return (this.sub_generators);
         }
-        public Collection<String> getSubGeneratorTableNames() {
-            List<String> names = new ArrayList<String>();
+        public Collection<DBName> getSubGeneratorTableNames() {
+            List<DBName> names = new ArrayList<DBName>();
             for (AbstractTableGenerator gen : this.sub_generators) {
                 names.add(gen.catalog_tbl.getName());
             }
@@ -503,7 +503,7 @@ public class AuctionMarkLoader extends Loader {
          * Returns the name of the table this this generates
          * @return
          */
-        public String getTableName() {
+        public DBName getTableName() {
             return this.tableName;
         }
         /**
@@ -568,7 +568,7 @@ public class AuctionMarkLoader extends Loader {
         	return (this.latch.getCount() == 0);
         }
         
-        public List<String> getDependencies() {
+        public List<DBName> getDependencies() {
             return this.dependencyTables;
         }
         
@@ -588,9 +588,9 @@ public class AuctionMarkLoader extends Loader {
         private T current;
         private short currentCounter;
         private boolean stop = false;
-        private final String sourceTableName;
+        private final DBName sourceTableName;
 
-        public SubTableGenerator(String tableName, String sourceTableName, String...dependencies) {
+        public SubTableGenerator(DBName tableName, DBName sourceTableName, DBName...dependencies) {
             super(tableName, dependencies);
             this.sourceTableName = sourceTableName;
         }
@@ -1514,7 +1514,7 @@ public class AuctionMarkLoader extends Loader {
             UserId buyerId = null;
             int num_watchers = this.watchers.size();
             boolean use_random = (num_watchers == bidderHistogram.getValueCount());
-            long num_users = tableSizes.get(AuctionMarkConstants.TABLENAME_USERACCT);
+            long num_users = tableSizes.get(AuctionMarkConstants.TABLENAME_USERACCT.getShortName());
             
             if (LOG.isTraceEnabled())
                 LOG.trace(String.format("Selecting USER_WATCH buyerId [useRandom=%s, watchers=%d]",

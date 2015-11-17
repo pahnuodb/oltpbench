@@ -16,10 +16,14 @@
 
 package com.oltpbenchmark.benchmarks.sibench;
 
+import com.oltpbenchmark.util.DBName;
+
 public abstract class SIConstants {
     
     public static final int NUM_FIELDS = 1;
     
     public static final int configCommitCount = 10;
 
+    public static final String SCHEMA_NAME = null;
+    public static final DBName TEST_TABLE_NAME = new DBName(SCHEMA_NAME, "SITEST");
 }

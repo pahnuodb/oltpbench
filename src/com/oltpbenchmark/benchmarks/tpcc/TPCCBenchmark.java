@@ -39,7 +39,7 @@ public class TPCCBenchmark extends BenchmarkModule {
     private static final Logger LOG = Logger.getLogger(TPCCBenchmark.class);
 
 	public TPCCBenchmark(WorkloadConfiguration workConf) {
-		super("tpcc", workConf, true, "TPCC");
+		super("tpcc", workConf, true, TPCCConstants.SCHEMA_NAME);
 	}
 
 	@Override

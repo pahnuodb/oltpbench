@@ -324,7 +324,7 @@ public abstract class SQLUtil {
      */
     public static String getCountSQL(Table catalog_tbl, String col) {
         return String.format("SELECT COUNT(%s) FROM %s",
-                             col, catalog_tbl.getEscapedName());
+                             col, catalog_tbl.getEscapedFullyQualifiedName());
     }
 
 

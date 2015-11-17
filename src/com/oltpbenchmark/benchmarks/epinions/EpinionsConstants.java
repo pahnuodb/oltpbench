@@ -16,6 +16,8 @@
 
 package com.oltpbenchmark.benchmarks.epinions;
 
+import com.oltpbenchmark.util.DBName;
+
 public abstract class EpinionsConstants {
 
     // Constants
@@ -29,4 +31,13 @@ public abstract class EpinionsConstants {
     public static final int TRUST = 200; // this is the average .. expand to max
 
     public final static int BATCH_SIZE = 1000;
+    
+    //
+    // Schema and table names
+    //
+    public static final String SCHEMA_NAME = null;
+    public static final DBName USER_TABLE = new DBName(SCHEMA_NAME, "USER");
+    public static final DBName ITEM_TABLE = new DBName(SCHEMA_NAME, "ITEM");
+    public static final DBName REVIEW_TABLE = new DBName(SCHEMA_NAME, "REVIEW");
+    public static final DBName TRUST_TABLE = new DBName(SCHEMA_NAME, "TRUST");
 }

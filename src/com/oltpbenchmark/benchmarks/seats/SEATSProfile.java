@@ -38,6 +38,7 @@ import com.oltpbenchmark.benchmarks.seats.util.FlightId;
 import com.oltpbenchmark.catalog.Catalog;
 import com.oltpbenchmark.catalog.Column;
 import com.oltpbenchmark.catalog.Table;
+import com.oltpbenchmark.util.DBName;
 import com.oltpbenchmark.util.Histogram;
 import com.oltpbenchmark.util.JSONUtil;
 import com.oltpbenchmark.util.RandomDistribution.FlatHistogram;
@@ -102,7 +103,7 @@ public class SEATSProfile {
      */
     protected final Map<String, Histogram<String>> airport_histograms = new HashMap<String, Histogram<String>>();
 
-    protected final Map<String, Map<String, Long>> code_id_xref = new HashMap<String, Map<String, Long>>();
+    private final Map<DBName, Map<String, Long>> code_id_xref = new HashMap<DBName, Map<String, Long>>();
 
     // ----------------------------------------------------------------
     // TRANSIENT DATA MEMBERS
@@ -124,13 +125,13 @@ public class SEATSProfile {
     /**
      * Key -> Id Mappings
      */
-    protected transient final Map<String, String> code_columns = new HashMap<String, String>();
+    private transient final Map<DBName, DBName> code_columns = new HashMap<DBName, DBName>();
     
     /**
      * Foreign Key Mappings
      * Column Name -> Xref Mapper
      */
-    protected transient final Map<String, String> fkey_value_xref = new HashMap<String, String>();
+    private transient final Map<DBName, DBName> fkey_value_xref = new HashMap<DBName, DBName>();
     
     /**
      * Data Directory
@@ -162,11 +163,11 @@ public class SEATSProfile {
         }
         
         // Tuple Code to Tuple Id Mapping
-        for (String xref[] : SEATSConstants.CODE_TO_ID_COLUMNS) {
+        for (DBName xref[] : SEATSConstants.CODE_TO_ID_COLUMNS) {
             assert(xref.length == 3);
-            String tableName = xref[0];
-            String codeCol = xref[1];
-            String idCol = xref[2];
+            DBName tableName = xref[0];
+            DBName codeCol = xref[1];
+            DBName idCol = xref[2];
             
             if (this.code_columns.containsKey(codeCol) == false) {
                 this.code_columns.put(codeCol, idCol);
@@ -193,6 +194,22 @@ public class SEATSProfile {
             } // FOR
         } // FOR
         
+    }
+    
+    public DBName getCodeColumnName(DBName columnName) {
+        return code_columns.get(columnName);
+    }
+    
+    public DBName getFKeyRef(DBName columnName) {
+        return fkey_value_xref.get(columnName);
+    }
+    
+    public boolean hasFKeyRef(DBName columnName) {
+        return fkey_value_xref.containsKey(columnName);
+    }
+    
+    public Map<String, Long> getCodeIdRef(DBName columnName) {
+        return code_id_xref.get(columnName);
     }
     
     // ----------------------------------------------------------------
@@ -304,8 +321,8 @@ public class SEATSProfile {
             
             // CODE XREFS
             for (int i = 0; i < SEATSConstants.CODE_TO_ID_COLUMNS.length; i++) {
-                String codeCol = SEATSConstants.CODE_TO_ID_COLUMNS[i][1];
-                String idCol = SEATSConstants.CODE_TO_ID_COLUMNS[i][2];
+                DBName codeCol = SEATSConstants.CODE_TO_ID_COLUMNS[i][1];
+                DBName idCol = SEATSConstants.CODE_TO_ID_COLUMNS[i][2];
                 this.loadCodeXref(results[result_idx++], codeCol, idCol);
             } // FOR
             
@@ -361,7 +378,7 @@ public class SEATSProfile {
             LOG.debug(String.format("Loaded %s data", SEATSConstants.TABLENAME_CONFIG_HISTOGRAMS));
     }
     
-    private final void loadCodeXref(ResultSet vt, String codeCol, String idCol) throws SQLException {
+    private final void loadCodeXref(ResultSet vt, DBName codeCol, DBName idCol) throws SQLException {
         Map<String, Long> m = this.code_id_xref.get(idCol);
         while (vt.next()) {
             int col = 1;
@@ -392,7 +409,7 @@ public class SEATSProfile {
         return this.airline_data_dir;
     }
     
-    private Map<String, Long> getCodeXref(String col_name) {
+    private Map<String, Long> getCodeXref(DBName col_name) {
         Map<String, Long> m = this.code_id_xref.get(col_name);
         assert(m != null) : "Invalid code xref mapping column '" + col_name + "'";
         assert(m.isEmpty() == false) : "Empty code xref mapping for column '" + col_name + "'\n" + StringUtil.formatMaps(this.code_id_xref); 
@@ -570,17 +587,17 @@ public class SEATSProfile {
     // ----------------------------------------------------------------
     
     public Collection<Long> getAirlineIds() {
-        Map<String, Long> m = this.getCodeXref("AL_ID");
+        Map<String, Long> m = this.getCodeXref(SEATSConstants.TUPLE_AIRLINE_CO_ID);
         return (m.values());
     }
     
     public Collection<String> getAirlineCodes() {
-        Map<String, Long> m = this.getCodeXref("AL_ID");
+        Map<String, Long> m = this.getCodeXref(SEATSConstants.TUPLE_AIRLINE_CO_ID);
         return (m.keySet());
     }
     
     public Long getAirlineId(String airline_code) {
-        Map<String, Long> m = this.getCodeXref("AL_ID");
+        Map<String, Long> m = this.getCodeXref(SEATSConstants.TUPLE_AIRLINE_CO_ID);
         return (m.get(airline_code));
     }
     
@@ -606,17 +623,17 @@ public class SEATSProfile {
      * @return
      */
     public Collection<Long> getAirportIds() {
-        Map<String, Long> m = this.getCodeXref("AP_ID");
+        Map<String, Long> m = this.getCodeXref(SEATSConstants.TUPLE_AIRPORT_CO_ID);
         return (m.values());
     }
     
     public Long getAirportId(String airport_code) {
-        Map<String, Long> m = this.getCodeXref("AP_ID");
+        Map<String, Long> m = this.getCodeXref(SEATSConstants.TUPLE_AIRPORT_CO_ID);
         return (m.get(airport_code));
     }
     
     public String getAirportCode(long airport_id) {
-        Map<String, Long> m = this.getCodeXref("AP_ID");
+        Map<String, Long> m = this.getCodeXref(SEATSConstants.TUPLE_AIRPORT_CO_ID);
         for (Entry<String, Long> e : m.entrySet()) {
             if (e.getValue() == airport_id) return (e.getKey());
         }
@@ -624,7 +641,7 @@ public class SEATSProfile {
     }
     
     public Collection<String> getAirportCodes() {
-        return (this.getCodeXref("AP_ID").keySet());
+        return (this.getCodeXref(SEATSConstants.TUPLE_AIRPORT_CO_ID).keySet());
     }
     
     /**

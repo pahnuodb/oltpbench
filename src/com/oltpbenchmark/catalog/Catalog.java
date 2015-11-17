@@ -73,8 +73,8 @@ public final class Catalog {
 //    private static final DatabaseType DB_TYPE = DatabaseType.H2;
     
     private final BenchmarkModule benchmark;
-    private final Map<String, Table> tables = new HashMap<String, Table>();
-    private final Map<String, String> origTableNames;
+    private final Map<DBName, Table> tables = new HashMap<DBName, Table>();
+    private final Map<String, DBName> origTableNames;
     private final Connection conn;
     private final String schemaName;
     
@@ -114,7 +114,7 @@ public final class Catalog {
     public int getTableCount() {
         return (this.tables.size());
     }
-    public Collection<String> getTableNames() {
+    public Collection<DBName> getTableNames() {
         return (this.tables.keySet());
     }
     public Collection<Table> getTables() {
@@ -127,9 +127,14 @@ public final class Catalog {
     /**
      * Get the table by the given name. This is case insensitive
      */
-    public Table getTable(String tableName) {
-        String name = this.origTableNames.get(tableName.toUpperCase());
-        return (this.tables.get(name));
+    public Table getTable(DBName tableName) {
+        //String name = this.origTableNames.get(tableName.toUpperCase());
+        return (this.tables.get(tableName));
+    }
+    
+    public Table getTableByName(final String tableNameString) {
+        DBName nm = new DBName(getSchemaName(), tableNameString.toUpperCase());
+        return tables.get(nm);
     }
     
     // --------------------------------------------------------------------------
@@ -148,20 +153,25 @@ public final class Catalog {
         this.benchmark.createDatabase(DB_TYPE, this.conn);
         
         // TableName -> ColumnName -> <FkeyTable, FKeyColumn>
-        Map<String, Map<String, Pair<String, String>>> foreignKeys = new HashMap<String, Map<String,Pair<String,String>>>();
+        Map<DBName, Map<DBName, Pair<DBName, DBName>>> foreignKeys = new HashMap<DBName, Map<DBName,Pair<DBName,DBName>>>();
         
         DatabaseMetaData md = conn.getMetaData();
         ResultSet table_rs = md.getTables(null, null, null, new String[]{"TABLE"});
         while (table_rs.next()) {
             if (LOG.isDebugEnabled()) LOG.debug(SQLUtil.debug(table_rs));
             String internal_table_name = table_rs.getString(3);
-            String table_name = origTableNames.get(table_rs.getString(3).toUpperCase());
+            String lookupName = table_rs.getString(3).toUpperCase();
+            DBName table_name = origTableNames.get(lookupName);
+            if (table_name == null) {
+                table_name = origTableNames.get(getSchemaName() + DBName.DEFAULT_DB_NAME_SEPARATOR + lookupName);
+            }
             assert(table_name != null) : "Unexpected table '" + table_rs.getString(3) + "' from catalog"; 
             LOG.debug(String.format("ORIG:%s -> CATALOG:%s", internal_table_name, table_name));
             
             String table_type = table_rs.getString(4);
             if (table_type.equalsIgnoreCase("TABLE") == false) continue;
-            Table catalog_tbl = new Table(table_name, getSchemaName());
+            Table catalog_tbl = new Table(table_name);
+            tables.put(table_name, catalog_tbl);
             
             // COLUMNS
             if (LOG.isDebugEnabled())
@@ -177,7 +187,7 @@ public final class Catalog {
                 boolean col_nullable = col_rs.getString(18).equalsIgnoreCase("YES");
                 boolean col_autoinc = false; // FIXME col_rs.getString(22).toUpperCase().equals("YES");
 
-                Column catalog_col = new Column(catalog_tbl, col_name, col_type, col_typename, col_size);
+                Column catalog_col = new Column(catalog_tbl, new DBName(col_name), col_type, col_typename, col_size);
                 catalog_col.setDefaultValue(col_defaultValue);
                 catalog_col.setAutoincrement(col_autoinc);
                 catalog_col.setNullable(col_nullable);
@@ -229,9 +239,9 @@ public final class Catalog {
                 } else
                     idx_direction = null;
 
-                Index catalog_idx = catalog_tbl.getIndex(idx_name);
+                Index catalog_idx = catalog_tbl.getIndexByName(idx_name);
                 if (catalog_idx == null) {
-                    catalog_idx = new Index(catalog_tbl, idx_name, idx_type, idx_unique);
+                    catalog_idx = new Index(catalog_tbl, new DBName(idx_name), idx_type, idx_unique);
                     catalog_tbl.addIndex(catalog_idx);
                 }
                 assert (catalog_idx != null);
@@ -239,39 +249,45 @@ public final class Catalog {
             } // WHILE
             idx_rs.close();
             
-            // FOREIGN KEYS
+            //tables.put(table_name, catalog_tbl);
+        } // WHILE
+        table_rs.close();
+        
+        // FOREIGN KEYS
+        for (DBName table_name : tables.keySet()) {
             if (LOG.isDebugEnabled())
                 LOG.debug("Retrieving FOREIGN KEY information for " + table_name);
-            ResultSet fk_rs = md.getImportedKeys(null, null, internal_table_name);
-            foreignKeys.put(table_name, new HashMap<String, Pair<String,String>>());
+            ResultSet fk_rs = md.getImportedKeys(null, null, table_name.getFullName(DBName.DEFAULT_DB_NAME_SEPARATOR));
+            foreignKeys.put(table_name, new HashMap<DBName, Pair<DBName,DBName>>());
+            Table theTable = tables.get(table_name);
             while (fk_rs.next()) {
                 if (LOG.isDebugEnabled())
                     LOG.debug(table_name + " => " + SQLUtil.debug(fk_rs));
-                assert(fk_rs.getString(7).equalsIgnoreCase(table_name));
+                assert(fk_rs.getString(7).equalsIgnoreCase(table_name.getShortName()));
                 
-                String colName = fk_rs.getString(8);
-                String fk_tableName = origTableNames.get(fk_rs.getString(3).toUpperCase());
-                String fk_colName = fk_rs.getString(4);
+                String colStr = fk_rs.getString(8);
+                DBName colName = theTable.getColumnByName(colStr).getName();
+                DBName fk_tableName = origTableNames.get(fk_rs.getString(3).toUpperCase());
+                String fk_colNameStr = fk_rs.getString(4);
+                Table fk_table = tables.get(fk_tableName);
+                DBName fk_colName = fk_table.getColumnByName(fk_colNameStr).getName();
                 
                 foreignKeys.get(table_name).put(colName, Pair.of(fk_tableName, fk_colName));
             } // WHILE
             fk_rs.close();
-            
-            tables.put(table_name, catalog_tbl);
-        } // WHILE
-        table_rs.close();
+        }
         
         // FOREIGN KEYS
         if (LOG.isDebugEnabled())
             LOG.debug("Foreign Key Mappings:\n" + StringUtil.formatMaps(foreignKeys));
         for (Table catalog_tbl : tables.values()) {
-            Map<String, Pair<String, String>> fk = foreignKeys.get(catalog_tbl.getName());
-            for (Entry<String, Pair<String, String>> e: fk.entrySet()){
-                String colName = e.getKey();                
+            Map<DBName, Pair<DBName, DBName>> fk = foreignKeys.get(catalog_tbl.getName());
+            for (Entry<DBName, Pair<DBName, DBName>> e: fk.entrySet()){
+                DBName colName = e.getKey();                
                 Column catalog_col = catalog_tbl.getColumnByName(colName);
                 assert(catalog_col != null);
                 
-                Pair<String, String> fkey = e.getValue();
+                Pair<DBName, DBName> fkey = e.getValue();
                 assert(fkey != null);
                 
                 Table fkey_tbl = tables.get(fkey.first);
@@ -292,8 +308,8 @@ public final class Catalog {
         return;
     }
     
-    protected Map<String, String> getOriginalTableNames() {
-        Map<String, String> origTableNames = new HashMap<String, String>();
+    protected Map<String, DBName> getOriginalTableNames() {
+        Map<String, DBName> origTableNames = new HashMap<String, DBName>();
         Pattern p = Pattern.compile("CREATE[\\s]+TABLE[\\s]+(.*?)[\\s]+", Pattern.CASE_INSENSITIVE);
         URL ddl = this.benchmark.getDatabaseDDL(DatabaseType.HSQLDB);
         String ddlContents;
@@ -306,9 +322,10 @@ public final class Catalog {
         Matcher m = p.matcher(ddlContents);
         while (m.find()) {
             String tableName = m.group(1).trim();
-            origTableNames.put(tableName.toUpperCase(), tableName);
+            DBName dbName = new DBName(getSchemaName(), tableName);
+            origTableNames.put(tableName.toUpperCase(), dbName);
             System.out.println("adding mapping for table: " + DBName.getFullName(tableName.toUpperCase(), this, "."));
-            origTableNames.put(DBName.getFullName(tableName.toUpperCase(), this, "."), tableName);
+            origTableNames.put(DBName.getFullName(tableName.toUpperCase(), this, "."), dbName);
 //            origTableNames.put(tableName, tableName);
         } // WHILE
         assert(origTableNames.isEmpty() == false) :

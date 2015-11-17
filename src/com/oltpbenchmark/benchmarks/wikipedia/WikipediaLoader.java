@@ -36,6 +36,7 @@ import com.oltpbenchmark.benchmarks.wikipedia.data.UserHistograms;
 import com.oltpbenchmark.benchmarks.wikipedia.util.TransactionSelector;
 import com.oltpbenchmark.catalog.Table;
 import com.oltpbenchmark.types.DatabaseType;
+import com.oltpbenchmark.util.DBName;
 import com.oltpbenchmark.util.Pair;
 import com.oltpbenchmark.util.RandomDistribution.Flat;
 import com.oltpbenchmark.util.RandomDistribution.FlatHistogram;
@@ -528,9 +529,9 @@ public class WikipediaLoader extends Loader {
         revTable = this.getTableCatalog(WikipediaConstants.TABLENAME_USER);
         
         // Since Oracle handles table names with quote differently, catch this here
-        String revTableName = (this.getDatabaseType() == DatabaseType.ORACLE) ? revTable.getName() : revTable.getEscapedName();
+        String revTableNameStr = (this.getDatabaseType() == DatabaseType.ORACLE) ? revTable.getName().getFullName(DBName.DEFAULT_DB_NAME_SEPARATOR) : revTable.getName().getEscapedFullName(DBName.DEFAULT_DB_NAME_SEPARATOR);
         
-        String updateUserSql = "UPDATE " + revTableName + 
+        String updateUserSql = "UPDATE " + revTableNameStr + 
                                "   SET user_editcount = ?, " +
                                "       user_touched = ? " +
                                " WHERE user_id = ?";
@@ -560,9 +561,9 @@ public class WikipediaLoader extends Loader {
         revTable = this.getTableCatalog(WikipediaConstants.TABLENAME_PAGE);
         
         // Since Oracle handles table names with quote differently, catch this here
-        revTableName = (this.getDatabaseType() == DatabaseType.ORACLE) ? revTable.getName() : revTable.getEscapedName();
+        revTableNameStr = (this.getDatabaseType() == DatabaseType.ORACLE) ? revTable.getName().getFullName(DBName.DEFAULT_DB_NAME_SEPARATOR) : revTable.getName().getEscapedFullName(DBName.DEFAULT_DB_NAME_SEPARATOR);
         
-        String updatePageSql = "UPDATE " + revTableName + 
+        String updatePageSql = "UPDATE " + revTableNameStr + 
                                "   SET page_latest = ?, " +
                                "       page_touched = ?, " +
                                "       page_is_new = 0, " +

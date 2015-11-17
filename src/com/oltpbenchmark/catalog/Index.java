@@ -26,6 +26,7 @@ import java.util.TreeMap;
 import org.apache.commons.collections15.map.ListOrderedMap;
 
 import com.oltpbenchmark.types.SortDirectionType;
+import com.oltpbenchmark.util.DBName;
 import com.oltpbenchmark.util.StringUtil;
 
 public class Index extends AbstractCatalogObject {
@@ -49,7 +50,7 @@ public class Index extends AbstractCatalogObject {
         }
     } // CLASS
     
-    public Index(Table catalog_tbl, String name, int type, boolean unique) {
+    public Index(Table catalog_tbl, DBName name, int type, boolean unique) {
         super(name);
         this.catalog_tbl = catalog_tbl;
         this.type = type;

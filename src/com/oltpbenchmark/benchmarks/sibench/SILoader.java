@@ -42,7 +42,7 @@ public class SILoader extends Loader {
     @Override
     public void load() throws SQLException {
         Random rand = new Random(System.currentTimeMillis());
-        Table catalog_tbl = this.getTableCatalog("SITEST");
+        Table catalog_tbl = this.getTableCatalog(SIConstants.TEST_TABLE_NAME);
         assert (catalog_tbl != null);
         
         String sql = SQLUtil.getInsertSQL(catalog_tbl);
