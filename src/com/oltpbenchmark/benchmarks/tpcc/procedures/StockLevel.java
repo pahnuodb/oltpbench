@@ -83,31 +83,41 @@ public class StockLevel extends TPCCProcedure {
 
 			stockGetDistOrderId.setInt(1, w_id);
 			stockGetDistOrderId.setInt(2, d_id);
-			ResultSet rs = stockGetDistOrderId.executeQuery();
-
-			if (!rs.next())
-				throw new RuntimeException("D_W_ID="+ w_id +" D_ID="+ d_id+" not found!");
-			o_id = rs.getInt("D_NEXT_O_ID");
-			rs.close();
-			rs = null;
-
-
-			stockGetCountStock.setInt(1, w_id);
-			stockGetCountStock.setInt(2, d_id);
-			stockGetCountStock.setInt(3, o_id);
-			stockGetCountStock.setInt(4, o_id);
-			stockGetCountStock.setInt(5, w_id);
-			stockGetCountStock.setInt(6, threshold);
-			rs = stockGetCountStock.executeQuery();
-
-			if (!rs.next())
-				throw new RuntimeException("OL_W_ID="+w_id +" OL_D_ID="+d_id+" OL_O_ID="+o_id+" not found!");
-			stock_count = rs.getInt("STOCK_COUNT");
-
-			conn.commit();
-
-			rs.close();
-			rs = null;
+			ResultSet rs = null;
+			try {
+    			rs = stockGetDistOrderId.executeQuery();    			
+    
+    			if (!rs.next()) {
+    				throw new RuntimeException("D_W_ID="+ w_id +" D_ID="+ d_id+" not found!");
+    			}
+    			
+    			o_id = rs.getInt("D_NEXT_O_ID");
+    			rs.close();
+    			rs = null;
+    
+    			stockGetCountStock.setInt(1, w_id);
+    			stockGetCountStock.setInt(2, d_id);
+    			stockGetCountStock.setInt(3, o_id);
+    			stockGetCountStock.setInt(4, o_id);
+    			stockGetCountStock.setInt(5, w_id);
+    			stockGetCountStock.setInt(6, threshold);
+    			rs = stockGetCountStock.executeQuery();
+    
+    			if (!rs.next()) {
+    				throw new RuntimeException("OL_W_ID="+w_id +" OL_D_ID="+d_id+" OL_O_ID="+o_id+" not found!");
+    			}
+    			
+    			stock_count = rs.getInt("STOCK_COUNT");
+    
+    			conn.commit();
+    
+    			rs.close();
+    			rs = null;
+			} finally {
+			    if (rs != null && !rs.isClosed()) {
+			        rs.close();
+			    }
+			}
 
 			StringBuilder terminalMessage = new StringBuilder();
 			terminalMessage

@@ -101,16 +101,27 @@ public class OrderStatus extends TPCCProcedure {
 				payGetCust.setInt(1, c_w_id);
 				payGetCust.setInt(2, c_d_id);
 				payGetCust.setInt(3, c_id);
-				ResultSet rs = payGetCust.executeQuery();
-				if (!rs.next()) {
-					throw new RuntimeException("C_ID=" + c_id + " C_D_ID=" + c_d_id
-							+ " C_W_ID=" + c_w_id + " not found!");
+				ResultSet rs = null;
+				Customer c = null;
+				
+				try {
+				    rs = payGetCust.executeQuery();
+    			
+    				if (!rs.next()) {
+    					throw new RuntimeException("C_ID=" + c_id + " C_D_ID=" + c_d_id
+    							+ " C_W_ID=" + c_w_id + " not found!");
+    				}
+    
+    				c = TPCCUtil.newCustomerFromResults(rs);
+    				c.c_id = c_id;
+    				c.c_last = rs.getString("C_LAST");
+    				rs.close();
+				} finally {
+				    if (rs != null && !rs.isClosed()) {
+				        rs.close();
+				    }
 				}
-
-				Customer c = TPCCUtil.newCustomerFromResults(rs);
-				c.c_id = c_id;
-				c.c_last = rs.getString("C_LAST");
-				rs.close();
+				
 				return c;
 			}
 

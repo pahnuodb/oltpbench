@@ -153,13 +153,16 @@ public class NewOrder extends TPCCProcedure {
 		int ol_supply_w_id, ol_i_id, ol_quantity;
 		int s_remote_cnt_increment;
 		float ol_amount, total_amount = 0;
+		
+		ResultSet rs = null;
+		
 		try
 		{
 			stmtGetCustWhse.setInt(1, w_id);
 			stmtGetCustWhse.setInt(2, w_id);
 			stmtGetCustWhse.setInt(3, d_id);
 			stmtGetCustWhse.setInt(4, c_id);
-			ResultSet rs = stmtGetCustWhse.executeQuery();
+			rs = stmtGetCustWhse.executeQuery();
 			if (!rs.next())
 				throw new RuntimeException("W_ID=" + w_id + " C_D_ID=" + d_id
 						+ " C_ID=" + c_id + " not found!");
@@ -366,10 +369,17 @@ public class NewOrder extends TPCCProcedure {
 		    throw userEx;
 		}
 	    finally {
-            if (stmtInsertOrderLine != null)
+            if (stmtInsertOrderLine != null) {
                 stmtInsertOrderLine.clearBatch();
-              if (stmtUpdateStock != null)
+            }
+            
+            if (stmtUpdateStock != null) {
                 stmtUpdateStock.clearBatch();
+            }
+            
+            if (rs != null && !rs.isClosed()) {
+                rs.close();
+            }
         }
 
 	}

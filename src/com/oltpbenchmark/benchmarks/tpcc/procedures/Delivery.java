@@ -95,104 +95,111 @@ public class Delivery extends TPCCProcedure {
 		orderIDs = new int[10];
 		for (d_id = 1; d_id <= 10; d_id++) {
 
-
-			delivGetOrderId.setInt(1, d_id);
-			delivGetOrderId.setInt(2, w_id);
-			ResultSet rs = delivGetOrderId.executeQuery();
-			if (!rs.next()) {
-				// This district has no new orders; this can happen but should
-				// be rare
-				continue;
-			}
-
-			int no_o_id = rs.getInt("NO_O_ID");
-			orderIDs[d_id - 1] = no_o_id;
-			rs.close();
-			rs = null;
-
-			delivDeleteNewOrder.setInt(1, no_o_id);
-			delivDeleteNewOrder.setInt(2, d_id);
-			delivDeleteNewOrder.setInt(3, w_id);
-			int result = delivDeleteNewOrder.executeUpdate();
-			if (result != 1) {
-				// This code used to run in a loop in an attempt to make this
-				// work
-				// with MySQL's default weird consistency level. We just always
-				// run
-				// this as SERIALIZABLE instead. I don't *think* that fixing
-				// this one
-				// error makes this work with MySQL's default consistency.
-				// Careful
-				// auditing would be required.
-				throw new UserAbortException(
-						"New order w_id="
-								+ w_id
-								+ " d_id="
-								+ d_id
-								+ " no_o_id="
-								+ no_o_id
-								+ " delete failed (not running with SERIALIZABLE isolation?)");
-			}
-
-
-			delivGetCustId.setInt(1, no_o_id);
-			delivGetCustId.setInt(2, d_id);
-			delivGetCustId.setInt(3, w_id);
-			rs = delivGetCustId.executeQuery();
-
-			if (!rs.next())
-				throw new RuntimeException("O_ID=" + no_o_id + " O_D_ID="
-						+ d_id + " O_W_ID=" + w_id + " not found!");
-			c_id = rs.getInt("O_C_ID");
-			rs.close();
-			rs = null;
-
-
-			delivUpdateCarrierId.setInt(1, o_carrier_id);
-			delivUpdateCarrierId.setInt(2, no_o_id);
-			delivUpdateCarrierId.setInt(3, d_id);
-			delivUpdateCarrierId.setInt(4, w_id);
-			result = delivUpdateCarrierId.executeUpdate();
-
-			if (result != 1)
-				throw new RuntimeException("O_ID=" + no_o_id + " O_D_ID="
-						+ d_id + " O_W_ID=" + w_id + " not found!");
-
-
-			delivUpdateDeliveryDate.setTimestamp(1,
-					new Timestamp(System.currentTimeMillis()));
-			delivUpdateDeliveryDate.setInt(2, no_o_id);
-			delivUpdateDeliveryDate.setInt(3, d_id);
-			delivUpdateDeliveryDate.setInt(4, w_id);
-			result = delivUpdateDeliveryDate.executeUpdate();
-
-			if (result == 0)
-				throw new RuntimeException("OL_O_ID=" + no_o_id + " OL_D_ID="
-						+ d_id + " OL_W_ID=" + w_id + " not found!");
-
-
-
-			delivSumOrderAmount.setInt(1, no_o_id);
-			delivSumOrderAmount.setInt(2, d_id);
-			delivSumOrderAmount.setInt(3, w_id);
-			rs = delivSumOrderAmount.executeQuery();
-
-			if (!rs.next())
-				throw new RuntimeException("OL_O_ID=" + no_o_id + " OL_D_ID="
-						+ d_id + " OL_W_ID=" + w_id + " not found!");
-			ol_total = rs.getFloat("OL_TOTAL");
-			rs.close();
-			rs = null;
-
-			delivUpdateCustBalDelivCnt.setFloat(1, ol_total);
-			delivUpdateCustBalDelivCnt.setInt(2, w_id);
-			delivUpdateCustBalDelivCnt.setInt(3, d_id);
-			delivUpdateCustBalDelivCnt.setInt(4, c_id);
-			result = delivUpdateCustBalDelivCnt.executeUpdate();
-
-			if (result == 0)
-				throw new RuntimeException("C_ID=" + c_id + " C_W_ID=" + w_id
-						+ " C_D_ID=" + d_id + " not found!");
+		    ResultSet rs = null;
+		    
+		    try {
+    			delivGetOrderId.setInt(1, d_id);
+    			delivGetOrderId.setInt(2, w_id);
+    			rs = delivGetOrderId.executeQuery();
+    			if (!rs.next()) {
+    				// This district has no new orders; this can happen but should
+    				// be rare
+    				continue;
+    			}
+    
+    			int no_o_id = rs.getInt("NO_O_ID");
+    			orderIDs[d_id - 1] = no_o_id;
+    			rs.close();
+    			rs = null;
+    
+    			delivDeleteNewOrder.setInt(1, no_o_id);
+    			delivDeleteNewOrder.setInt(2, d_id);
+    			delivDeleteNewOrder.setInt(3, w_id);
+    			int result = delivDeleteNewOrder.executeUpdate();
+    			if (result != 1) {
+    				// This code used to run in a loop in an attempt to make this
+    				// work
+    				// with MySQL's default weird consistency level. We just always
+    				// run
+    				// this as SERIALIZABLE instead. I don't *think* that fixing
+    				// this one
+    				// error makes this work with MySQL's default consistency.
+    				// Careful
+    				// auditing would be required.
+    				throw new UserAbortException(
+    						"New order w_id="
+    								+ w_id
+    								+ " d_id="
+    								+ d_id
+    								+ " no_o_id="
+    								+ no_o_id
+    								+ " delete failed (not running with SERIALIZABLE isolation?)");
+    			}
+    
+    
+    			delivGetCustId.setInt(1, no_o_id);
+    			delivGetCustId.setInt(2, d_id);
+    			delivGetCustId.setInt(3, w_id);
+    			rs = delivGetCustId.executeQuery();
+    
+    			if (!rs.next())
+    				throw new RuntimeException("O_ID=" + no_o_id + " O_D_ID="
+    						+ d_id + " O_W_ID=" + w_id + " not found!");
+    			c_id = rs.getInt("O_C_ID");
+    			rs.close();
+    			rs = null;
+    
+    
+    			delivUpdateCarrierId.setInt(1, o_carrier_id);
+    			delivUpdateCarrierId.setInt(2, no_o_id);
+    			delivUpdateCarrierId.setInt(3, d_id);
+    			delivUpdateCarrierId.setInt(4, w_id);
+    			result = delivUpdateCarrierId.executeUpdate();
+    
+    			if (result != 1)
+    				throw new RuntimeException("O_ID=" + no_o_id + " O_D_ID="
+    						+ d_id + " O_W_ID=" + w_id + " not found!");
+    
+    
+    			delivUpdateDeliveryDate.setTimestamp(1,
+    					new Timestamp(System.currentTimeMillis()));
+    			delivUpdateDeliveryDate.setInt(2, no_o_id);
+    			delivUpdateDeliveryDate.setInt(3, d_id);
+    			delivUpdateDeliveryDate.setInt(4, w_id);
+    			result = delivUpdateDeliveryDate.executeUpdate();
+    
+    			if (result == 0)
+    				throw new RuntimeException("OL_O_ID=" + no_o_id + " OL_D_ID="
+    						+ d_id + " OL_W_ID=" + w_id + " not found!");
+    
+    
+    
+    			delivSumOrderAmount.setInt(1, no_o_id);
+    			delivSumOrderAmount.setInt(2, d_id);
+    			delivSumOrderAmount.setInt(3, w_id);
+    			rs = delivSumOrderAmount.executeQuery();
+    
+    			if (!rs.next())
+    				throw new RuntimeException("OL_O_ID=" + no_o_id + " OL_D_ID="
+    						+ d_id + " OL_W_ID=" + w_id + " not found!");
+    			ol_total = rs.getFloat("OL_TOTAL");
+    			rs.close();
+    			rs = null;
+    
+    			delivUpdateCustBalDelivCnt.setFloat(1, ol_total);
+    			delivUpdateCustBalDelivCnt.setInt(2, w_id);
+    			delivUpdateCustBalDelivCnt.setInt(3, d_id);
+    			delivUpdateCustBalDelivCnt.setInt(4, c_id);
+    			result = delivUpdateCustBalDelivCnt.executeUpdate();
+    
+    			if (result == 0)
+    				throw new RuntimeException("C_ID=" + c_id + " C_W_ID=" + w_id
+    						+ " C_D_ID=" + d_id + " not found!");
+		    } finally {
+		        if (rs != null && !rs.isClosed()) {
+		            rs.close();
+		        }
+		    }
 		}
 
 		conn.commit();
