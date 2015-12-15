@@ -82,10 +82,12 @@ public class TPCCBenchmark extends BenchmarkModule {
 		                  numTerminals, numWarehouses);
 
 		String[] terminalNames = new String[numTerminals];
-		// TODO: This is currently broken: fix it!
-		int warehouseOffset = Integer.getInteger("warehouseOffset", 1);
-		assert warehouseOffset == 1;
 
+		int warehouseOffset = Integer.getInteger("warehouseOffset", 1); //warehouse to start at
+		assert warehouseOffset >= 1;
+		int warehouseCount = Integer.getInteger("warehouseCount", numWarehouses); //number of warehouses for this instance
+		assert warehouseCount >= 1;
+		
 		// We distribute terminals evenly across the warehouses
 		// Eg. if there are 10 terminals across 7 warehouses, they
 		// are distributed as
@@ -93,14 +95,20 @@ public class TPCCBenchmark extends BenchmarkModule {
 		final double terminalsPerWarehouse = (double) numTerminals
 				/ numWarehouses;
 		assert terminalsPerWarehouse >= 1;
-		for (int w = 0; w < numWarehouses; w++) {
+		final int maxWarehouse = warehouseOffset + warehouseCount;
+		assert maxWarehouse < numWarehouses;
+		
+		for (int w = warehouseOffset; w < maxWarehouse; w++) {
 			// Compute the number of terminals in *this* warehouse
-			int lowerTerminalId = (int) (w * terminalsPerWarehouse);
-			int upperTerminalId = (int) ((w + 1) * terminalsPerWarehouse);
+			int lowerTerminalId = (int) ((w - 1) * terminalsPerWarehouse);
+			int upperTerminalId = (int) (w * terminalsPerWarehouse);
 			// protect against double rounding errors
-			int w_id = w + 1;
-			if (w_id == numWarehouses)
+			int w_id = w;
+			
+			if (w_id == numWarehouses) {
 				upperTerminalId = numTerminals;
+			}
+			
 			int numWarehouseTerminals = upperTerminalId - lowerTerminalId;
 
 			LOG.info(String.format("w_id %d = %d terminals [lower=%d / upper%d]",
