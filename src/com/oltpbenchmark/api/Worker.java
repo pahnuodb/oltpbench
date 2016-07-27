@@ -148,9 +148,8 @@ public abstract class Worker implements Runnable {
         intervalRequests.set(0);
     }
 
-    public final long getIntervalLatenciesAverage() {
-        long latencyAve = intervalLatencies.get() / (long)intervalRequests.get();
-        return latencyAve;
+    public final long getIntervalLatencies() {
+        return intervalLatencies.get();
     }
 
     public final void resetIntervalLatencies() {
