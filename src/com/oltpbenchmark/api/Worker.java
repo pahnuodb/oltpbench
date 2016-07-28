@@ -335,7 +335,7 @@ work:
                         latencies.addLatency(type.getId(), start, end, this.id
                                 , phase.id);
                         intervalRequests.incrementAndGet();
-                        long latent = ((end - start + 500) / 1000);
+                        long latent = end - start;
                         intervalLatencies.addAndGet(latent);
                     }
                     if (phase.isLatencyRun())

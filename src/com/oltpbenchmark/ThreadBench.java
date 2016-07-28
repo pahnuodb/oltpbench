@@ -278,7 +278,8 @@ public class ThreadBench implements Thread.UncaughtExceptionHandler {
                     }
                 }
                 double tps = (double) measuredRequests / (double) this.intervalMonitor;
-                double latencyAve = ((double) measuredLatencies / (double) measuredRequests) / 1000.0;
+                long roundedMeasuredLatencies = (measuredLatencies + 500000) / 1000000;
+                double latencyAve = (double) roundedMeasuredLatencies / (double) measuredRequests;
                 LOG.info("Throughput: " + tps + " Tps");
                 LOG.info("Latency Average: " + latencyAve + " ms");
             } // WHILE
