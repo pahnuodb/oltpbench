@@ -268,13 +268,20 @@ public class ThreadBench implements Thread.UncaughtExceptionHandler {
                     return;
                 // Compute the last throughput
                 long measuredRequests = 0;
+                long measuredLatencies = 0;
                 synchronized (testState) {
                     for (Worker w : workers) {
-                        measuredRequests += w.getAndResetIntervalRequests();
+                        measuredLatencies += w.getIntervalLatencies();
+                        measuredRequests += w.getIntervalRequests();
+                        w.resetIntervalLatencies();
+                        w.resetIntervalRequests();
                     }
                 }
                 double tps = (double) measuredRequests / (double) this.intervalMonitor;
+                long roundedMeasuredLatencies = (measuredLatencies + 500000) / 1000000;
+                double latencyAve = (double) roundedMeasuredLatencies / (double) measuredRequests;
                 LOG.info("Throughput: " + tps + " Tps");
+                LOG.info("Latency Average: " + latencyAve + " ms");
             } // WHILE
         }
     } // CLASS
