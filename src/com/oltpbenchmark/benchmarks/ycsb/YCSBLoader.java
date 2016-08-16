@@ -25,6 +25,7 @@ import java.sql.Statement;
 import org.apache.log4j.Logger;
 
 import com.oltpbenchmark.api.Loader;
+import com.oltpbenchmark.api.StatementDialects;
 import com.oltpbenchmark.catalog.Table;
 import com.oltpbenchmark.util.SQLUtil;
 import com.oltpbenchmark.util.TextGenerator;
@@ -46,14 +47,17 @@ public class YCSBLoader extends Loader {
         Table catalog_tbl = this.getTableCatalog(YCSBConstants.YCSB_TABLENAME);
         assert (catalog_tbl != null);
         
-        Statement fooStmt = conn.createStatement();
-        ResultSet results = fooStmt.executeQuery("SELECT * FROM INFORMATION_SCHEMA.TABLES;");
-        StringBuilder sb = new StringBuilder();
-        while (results.next()) {
-            sb.append(results.getString(2)).append(".").append(results.getString(3)).append("\n");
+        StatementDialects dialects =  this.benchmark.getStatementDialects();
+        if (!dialects.getDatabaseType().name().equals("NUODB"))
+        {
+            Statement fooStmt = conn.createStatement();
+            ResultSet results = fooStmt.executeQuery("SELECT * FROM INFORMATION_SCHEMA.TABLES;");
+            StringBuilder sb = new StringBuilder();
+            while (results.next()) {
+                sb.append(results.getString(2)).append(".").append(results.getString(3)).append("\n");
+            }
+            System.out.println("existing tables = " + sb.toString());
         }
-        System.out.println("existing tables = " + sb.toString());
-        
         
         String sql = SQLUtil.getInsertSQL(catalog_tbl);
         PreparedStatement stmt = this.conn.prepareStatement(sql);
