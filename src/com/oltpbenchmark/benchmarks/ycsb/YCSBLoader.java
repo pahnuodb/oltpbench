@@ -47,17 +47,22 @@ public class YCSBLoader extends Loader {
         Table catalog_tbl = this.getTableCatalog(YCSBConstants.YCSB_TABLENAME);
         assert (catalog_tbl != null);
         
+        Statement fooStmt = conn.createStatement();
+        StringBuilder sb = new StringBuilder();
         StatementDialects dialects =  this.benchmark.getStatementDialects();
         if (!dialects.getDatabaseType().name().equals("NUODB"))
         {
-            Statement fooStmt = conn.createStatement();
             ResultSet results = fooStmt.executeQuery("SELECT * FROM INFORMATION_SCHEMA.TABLES;");
-            StringBuilder sb = new StringBuilder();
             while (results.next()) {
                 sb.append(results.getString(2)).append(".").append(results.getString(3)).append("\n");
             }
-            System.out.println("existing tables = " + sb.toString());
+        } else {
+            ResultSet results = fooStmt.executeQuery("SELECT TABLENAME, SCHEMA FROM SYSTEM.TABLES WHERE SCHEMA != 'SYSTEM';");
+            while (results.next()) {
+                sb.append(results.getString(2)).append(".").append(results.getString(1)).append("\n");
+            }
         }
+        System.out.println("existing tables = " + sb.toString());
         
         String sql = SQLUtil.getInsertSQL(catalog_tbl);
         PreparedStatement stmt = this.conn.prepareStatement(sql);
